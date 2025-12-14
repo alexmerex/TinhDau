@@ -14,6 +14,7 @@
 - [Cài Đặt](#-cài-đặt)
 - [Sử Dụng](#-sử-dụng)
 - [Cấu Trúc Dự Án](#-cấu-trúc-dự-án)
+- [Tài Liệu Kỹ Thuật](#-tài-liệu-kỹ-thuật)
 - [API Documentation](#-api-documentation)
 - [Testing](#-testing)
 - [Đóng Góp](#-đóng-góp)
@@ -224,7 +225,7 @@ TinhDau/
 │   └── ...
 │
 ├── docs/                   # Documentation
-│   └── README.md
+│   └── README.md           # [Tài liệu kỹ thuật chi tiết](docs/README.md)
 │
 ├── includes/               # Shared includes
 │   ├── header.php
@@ -255,6 +256,19 @@ TinhDau/
 ├── lich_su.php            # History page
 └── README.md              # This file
 ```
+
+## 📚 Tài Liệu Kỹ Thuật
+
+Để xem tài liệu kỹ thuật chi tiết về kiến trúc, module, và các ghi chú kỹ thuật, vui lòng xem:
+
+👉 **[docs/README.md](docs/README.md)** - Tài liệu kỹ thuật nội bộ
+
+Tài liệu này bao gồm:
+- Kiến trúc hệ thống chi tiết
+- Mô tả từng module và flow xử lý
+- Dữ liệu tham chiếu và cấu trúc CSV
+- Lịch sử khắc phục lỗi
+- Ghi chú kỹ thuật và best practices
 
 ## 🔌 API Documentation
 
