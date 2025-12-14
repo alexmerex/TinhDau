@@ -1,0 +1,12 @@
+id,﻿id,﻿id,ten_phuong_tien,loai,ngay,so_luong_lit,cay_xang,ly_do,transfer_pair_id,created_at
+5f3b2af0-d31a-4f4c-9aba-97129cc08e2f,9125e890-8ec6-4eb5-ac8b-90c659baba1c,,"Test Sao Chép 1",tinh_chinh,2025-09-06,2000,,,,"2025-12-04 22:06:03"
+9a96766f-9269-4a97-83f9-12ba509ff1e9,c38838e9-3258-46ee-b5d0-d95905a2963d,,"Test Sao Chép 1",cap_them,2025-10-26,2000,"Cây dầu Hồng Đức",,,"2025-12-04 22:06:37"
+c46f2a78-d876-4592-8ad5-45f21ed7bd77,ed08902c-22a8-4b8f-a762-e52590dd4b99,,"Test Sao Chép 1",cap_them,2025-10-14,500,"Cây dầu Việt Long",,,"2025-12-04 22:54:59"
+081dee83-7d68-4461-82fa-8bc1d686e294,bf1915d1-bfb1-4f57-bc1f-ea5b1aab3501,,HTL-2,cap_them,2025-11-06,2000,"Cây dầu Hồng Đức",,,"2025-12-05 16:11:14"
+eeaf9aa1-d1ad-421b-9d66-b57602c0b21c,2477e27e-538a-46f5-91ab-8a2e4bc6a80b,,HTL-2,cap_them,2025-11-16,2000,"Cây dầu Hồng Đức",,,"2025-12-05 16:11:29"
+54490cba-8c94-44ef-8fab-d680ad17f6cf,fd2434d1-aaf3-4f38-aa0a-6124bfb9127f,,HTL-2,tinh_chinh,2025-11-30,2500,,,,"2025-12-05 16:16:37"
+528ee035-8a59-423e-87e3-e4b74b27e8af,9c3c3dc0-9787-4170-bc64-0701b74feae7,,HTL-1,tinh_chinh,2025-11-14,-500,,"Chuyển dầu → chuyển sang HTL-2",b71e9ea9-0f75-4b3b-826b-eb4af6995efe,"2025-12-06 20:11:19"
+6babee0b-38ef-4569-9851-27a5b4dc5588,97106923-a01e-4663-b2a6-104fb2734eb1,,HTL-2,tinh_chinh,2025-11-14,500,,"Chuyển dầu ← nhận từ HTL-1",b71e9ea9-0f75-4b3b-826b-eb4af6995efe,"2025-12-06 20:11:19"
+1de1c7f1-b837-4b4e-b4be-f39e2084ad6a,29abacfe-821a-40dd-aba2-405b546ca1a8,,HTL-2,tinh_chinh,2025-11-14,5000,,,,"2025-12-06 20:11:58"
+a940bf36-0fdf-40b2-ae26-0952375a8c0a,eb9fd52b-11b6-464b-aaf7-fde433d930c8,,"Test Sao Chép 1",cap_them,2025-11-14,5000,"Cây dầu Hải Long",,,"2025-12-06 20:59:17"
+48225ffa-21f4-484a-850f-f08bcf34647c,9c915532-c299-47ff-b58e-300f7cfb1091,,"Test Sao Chép 1",tinh_chinh,2025-11-15,10000,,,,"2025-12-06 21:00:19"
