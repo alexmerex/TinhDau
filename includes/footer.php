@@ -402,11 +402,22 @@
             }
         });
         
+        // Helper: lấy số thứ tự hiển thị từ mã chuyến gốc (dùng mapping nếu có)
+        function getDisplayTripNumber(soChuyen) {
+            if (!soChuyen) return '';
+            const mapping = window.__tripMapping || {};
+            if (mapping[soChuyen]) {
+                return mapping[soChuyen];
+            }
+            return soChuyen;
+        }
+
         // Helper: reset khu vực nhật ký chuyến khi đổi tàu/chuyến để tránh hiển thị dữ liệu cũ
         function resetTripLogUI(soChuyen){
             try {
                 const header = document.querySelector('#tripLogDynamic .card-header h6');
-                if (header) header.innerHTML = `<i class="fas fa-list me-2"></i>Các đoạn của chuyến ${escapeHtml(String(soChuyen||''))} (sắp xếp theo thứ tự nhập)`;
+                const displayNumber = getDisplayTripNumber(soChuyen);
+                if (header) header.innerHTML = `<i class="fas fa-list me-2"></i>Các đoạn của chuyến ${escapeHtml(String(displayNumber||''))} (sắp xếp theo thứ tự nhập)`;
             } catch(_){ }
             try {
                 const cardBody = document.querySelector('#tripLogDynamic .card-body');
@@ -432,21 +443,28 @@
             const tenTau = document.getElementById('ten_tau').value;
             const soChuyenSelect = document.getElementById('so_chuyen');
             const chuyenMoiCheckbox = document.getElementById('chuyen_moi');
-            
+            const thangBaoCaoSelect = document.getElementById('thang_bao_cao');
+
             console.log('=== onTauChange START ===');
             console.log('tenTau:', tenTau);
             // Invalidate các request chi tiết chuyến đang chờ để tránh render đè dữ liệu cũ
             window.__tripReqToken = (typeof window.__tripReqToken === 'number' ? window.__tripReqToken + 1 : 1);
             // Xóa nhanh UI hiện tại để không còn thấy dữ liệu của tàu trước
             try { resetTripLogUI(soChuyenSelect?.value || ''); } catch(_){ }
-            
+
             if (window.__submittingForm) { return; }
             if (tenTau && soChuyenSelect) {
-                // Gọi API để lấy danh sách chuyến của tàu (trở về endpoint cũ ổn định)
-                console.log('Fetching trips for:', tenTau);
-                const apiUrl = 'ajax/get_trips.php?ten_tau=' + encodeURIComponent(tenTau);
+                // Lấy tháng báo cáo đang chọn để lọc chuyến theo tháng
+                const thangBaoCao = thangBaoCaoSelect ? thangBaoCaoSelect.value : '';
+
+                // Gọi API để lấy danh sách chuyến của tàu (có filter theo tháng nếu có)
+                console.log('Fetching trips for:', tenTau, 'month:', thangBaoCao);
+                let apiUrl = 'ajax/get_trips.php?ten_tau=' + encodeURIComponent(tenTau);
+                if (thangBaoCao && /^\d{4}-\d{2}$/.test(thangBaoCao)) {
+                    apiUrl += '&thang=' + encodeURIComponent(thangBaoCao);
+                }
                 console.log('API URL:', apiUrl);
-                
+
                 fetch(apiUrl)
                     .then(response => {
                         if (!response.ok) {
@@ -468,7 +486,7 @@
                             } catch(_){}
                             // Xóa các option cũ
                             soChuyenSelect.innerHTML = '';
-                            
+
                             // Thêm option mặc định
                             const defaultOption = document.createElement('option');
                             defaultOption.value = '';
@@ -476,12 +494,22 @@
                             soChuyenSelect.appendChild(defaultOption);
                             // Dọn sạch khu vực bảng ngay khi đổi tàu để tránh sót dữ liệu
                             try { resetTripLogUI(''); } catch(_){ }
-                            
+
+                            // Lưu mapping vào biến global để sử dụng khi hiển thị header
+                            window.__tripMapping = data.trips_mapping || {};
+
                             // Thêm các chuyến đã có
+                            // Nếu có mapping theo tháng, hiển thị số thứ tự; ngược lại hiển thị mã gốc
+                            const hasMapping = data.trips_mapping && Object.keys(data.trips_mapping).length > 0;
                             data.trips.forEach(trip => {
                                 const option = document.createElement('option');
-                                option.value = trip;
-                                option.textContent = trip;
+                                option.value = trip; // Value vẫn là mã gốc để logic lưu không đổi
+                                // Hiển thị số thứ tự nếu có mapping, ngược lại hiển thị mã gốc
+                                if (hasMapping && data.trips_mapping[trip]) {
+                                    option.textContent = data.trips_mapping[trip]; // Số thứ tự: 1, 2, 3...
+                                } else {
+                                    option.textContent = trip; // Mã gốc
+                                }
                                 soChuyenSelect.appendChild(option);
                             });
                             
@@ -586,6 +614,29 @@
             console.log('=== onTauChange END ===');
         };
 
+        // Function để xử lý thay đổi tháng báo cáo - reload lại danh sách chuyến theo tháng mới
+        window.onThangBaoCaoChange = function() {
+            console.log('=== onThangBaoCaoChange CALLED ===');
+            const tenTau = document.getElementById('ten_tau');
+            const thangBaoCao = document.getElementById('thang_bao_cao');
+
+            // Nếu đã chọn tàu, reload lại danh sách chuyến theo tháng mới
+            if (tenTau && tenTau.value) {
+                console.log('Reloading trips for month:', thangBaoCao ? thangBaoCao.value : '');
+                window.onTauChange();
+            }
+        };
+
+        // Gắn event listener cho dropdown tháng báo cáo
+        (function() {
+            const thangSelect = document.getElementById('thang_bao_cao');
+            if (thangSelect) {
+                thangSelect.addEventListener('change', function() {
+                    window.onThangBaoCaoChange();
+                });
+            }
+        })();
+
         // Function để xử lý thay đổi chuyến
         window.onChuyenChange = function() {
             if (window.__submittingForm) { return; }
@@ -598,7 +649,8 @@
                 // Hiển thị trạng thái loading nhanh để tránh nhìn thấy dữ liệu cũ
                 try {
                     const header = document.querySelector('#tripLogDynamic .card-header h6');
-                    if (header) header.innerHTML = `<i class="fas fa-list me-2"></i>Các đoạn của chuyến ${escapeHtml(String(soChuyen||''))} (sắp xếp theo thứ tự nhập)`;
+                    const displayNumber = getDisplayTripNumber(soChuyen);
+                    if (header) header.innerHTML = `<i class="fas fa-list me-2"></i>Các đoạn của chuyến ${escapeHtml(String(displayNumber||''))} (sắp xếp theo thứ tự nhập)`;
                     const tbody = document.getElementById('trip_table_body');
                     if (tbody) tbody.innerHTML = `<tr><td colspan="7" class="text-muted">Đang tải dữ liệu...</td></tr>`;
                 } catch(_){ /* noop */ }
@@ -817,14 +869,17 @@
                     soChuyenSelect.innerHTML = '';
                     const fixedOption = document.createElement('option');
                     fixedOption.value = String(nextTrip);
-                    fixedOption.textContent = String(nextTrip);
+                    // Hiển thị số thứ tự mới = số chuyến trong tháng + 1
+                    const mappingCount = window.__tripMapping ? Object.keys(window.__tripMapping).length : 0;
+                    const nextDisplayNumber = mappingCount > 0 ? (mappingCount + 1) : nextTrip;
+                    fixedOption.textContent = String(nextDisplayNumber);
                     soChuyenSelect.appendChild(fixedOption);
                     soChuyenSelect.value = String(nextTrip);
                     soChuyenSelect.selectedIndex = 0;
                     // Cập nhật header/bảng ngay để không còn dữ liệu cũ
                     try {
                         const header = document.querySelector('#tripLogDynamic .card-header h6');
-                        if (header) header.innerHTML = `<i class=\"fas fa-list me-2\"></i>Các đoạn của chuyến ${escapeHtml(String(nextTrip))} (sắp xếp theo thứ tự nhập)`;
+                        if (header) header.innerHTML = `<i class=\"fas fa-list me-2\"></i>Các đoạn của chuyến ${escapeHtml(String(nextDisplayNumber))} (sắp xếp theo thứ tự nhập)`;
                         const tbody = document.getElementById('trip_table_body');
                         if (tbody) tbody.innerHTML = `<tr><td colspan=\"6\" class=\"text-muted\">Chưa có dữ liệu cho chuyến này.</td></tr>`;
                         const cardBody = document.querySelector('#tripLogDynamic .card-body');
@@ -930,8 +985,9 @@
                 // 1) Cập nhật tiêu đề header để khớp số chuyến hiện tại
                 try {
                     const header = document.querySelector('#tripLogDynamic .card-header h6');
+                    const displayNumber = getDisplayTripNumber(soChuyen);
                     if (header) {
-                        header.innerHTML = `<i class="fas fa-list me-2"></i>Các đoạn của chuyến ${escapeHtml(String(soChuyen||''))} (sắp xếp theo thứ tự nhập)`;
+                        header.innerHTML = `<i class="fas fa-list me-2"></i>Các đoạn của chuyến ${escapeHtml(String(displayNumber||''))} (sắp xếp theo thứ tự nhập)`;
                     }
                 } catch(_){ /* noop */ }
 
@@ -953,10 +1009,11 @@
                 return;
             }
 
+            const displayNumber = getDisplayTripNumber(soChuyen);
             wrap.innerHTML = `
                 <div class="card border-info">
                   <div class="card-header bg-info text-white">
-                    <h6 class="mb-0"><i class="fas fa-list me-2"></i>Các đoạn của chuyến ${escapeHtml(String(soChuyen||''))} (sắp xếp theo thứ tự nhập)</h6>
+                    <h6 class="mb-0"><i class="fas fa-list me-2"></i>Các đoạn của chuyến ${escapeHtml(String(displayNumber||''))} (sắp xếp theo thứ tự nhập)</h6>
                   </div>
                   <div class="card-body">
                     ${capThemCount>0 ? `<div class=\"alert alert-warning d-flex align-items-center\" role=\"alert\">\n                        <i class=\"fas fa-gas-pump me-2\"></i>\n                        <div>Đã có <strong>${capThemCount}</strong> lệnh cấp thêm trong chuyến này. Tổng: <strong>${formatNumber(capThemTotal)}</strong> lít.</div>\n                    </div>` : ''}

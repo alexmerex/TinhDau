@@ -2751,8 +2751,42 @@ try {
                         // Sắp xếp transfer events theo ngày - đã vô hiệu hóa vì logic chính đã xử lý
                         $transferEvents = [];
                         
-                        // Sử dụng trực tiếp tripEvents vì logic chính đã merge lệnh chuyển dầu vào $rows
+                        // Sử dụng trực tiếp tripEvents vì logic chính đã merge lệnh chuyến dầu vào $rows
                         $__combined = $tripEvents;
+
+                        // Tạo mapping số chuyến theo tháng (bắt đầu từ 1) khi có filter theo tháng
+                        // Mapping: mã chuyến gốc -> số thứ tự trong tháng
+                        $__tripNumberMapping = [];
+                        if (!empty($filterYm)) {
+                            // Thu thập các mã chuyến duy nhất theo tàu, sắp xếp theo thứ tự số
+                            $__tripsByShip = [];
+                            foreach ($__combined as $__ev) {
+                                if ($__ev['type'] !== 'trip') continue;
+                                $__r = $filtered[$__ev['idx']] ?? null;
+                                if (!$__r) continue;
+                                $__sc = trim((string)($__r['so_chuyen'] ?? ''));
+                                if ($__sc === '') continue;
+                                // Chỉ đếm chuyến thường (cap_them = 0)
+                                if ((int)($__r['cap_them'] ?? 0) !== 0) continue;
+                                $__ship = trim((string)($__r['ten_phuong_tien'] ?? ''));
+                                if (!isset($__tripsByShip[$__ship])) {
+                                    $__tripsByShip[$__ship] = [];
+                                }
+                                if (!in_array($__sc, $__tripsByShip[$__ship])) {
+                                    $__tripsByShip[$__ship][] = $__sc;
+                                }
+                            }
+                            // Sắp xếp mã chuyến theo số và tạo mapping
+                            foreach ($__tripsByShip as $__ship => $__trips) {
+                                usort($__trips, function($a, $b) {
+                                    return (int)$a <=> (int)$b;
+                                });
+                                $__counter = 1;
+                                foreach ($__trips as $__origTrip) {
+                                    $__tripNumberMapping[$__ship][$__origTrip] = $__counter++;
+                                }
+                            }
+                        }
                     ?>
                     <?php if (empty($__combined)): ?>
                     <tr><td colspan="15" class="text-center text-muted">Không có dữ liệu</td></tr>
@@ -2810,7 +2844,18 @@ try {
                                 <span class="badge bg-secondary">Thuê ngoài</span>
                             <?php endif; ?>
                         </td>
-                        <td><?php echo htmlspecialchars((string)($r['so_chuyen'] ?? '')); ?></td>
+                        <td><?php
+                            // Hiển thị số chuyến: nếu có filter theo tháng thì dùng mapping (bắt đầu từ 1), ngược lại dùng mã gốc
+                            $__origSoChuyen = trim((string)($r['so_chuyen'] ?? ''));
+                            $__displaySoChuyen = $__origSoChuyen;
+                            if (!empty($filterYm) && $__origSoChuyen !== '' && (int)($r['cap_them'] ?? 0) === 0) {
+                                $__currentShip = trim((string)($r['ten_phuong_tien'] ?? ''));
+                                if (isset($__tripNumberMapping[$__currentShip][$__origSoChuyen])) {
+                                    $__displaySoChuyen = (string)$__tripNumberMapping[$__currentShip][$__origSoChuyen];
+                                }
+                            }
+                            echo htmlspecialchars($__displaySoChuyen);
+                        ?></td>
                         <td>
                             <?php if ($isCapThem): ?>
                                 <span class="badge bg-warning text-dark">Cấp thêm</span>

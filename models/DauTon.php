@@ -536,7 +536,17 @@ class DauTon {
 
             if ($isCapThemCalc) {
                 $dau = floor((float)($row['so_luong_cap_them_lit'] ?? 0));
-                $tieuHaoKH += $dau; // Cấp thêm không có hàng
+                // Phân loại dầu cho dòng CẤP THÊM theo nghiệp vụ:
+                // - Nếu lý do có chứa "qua cầu" => tính KHÔNG HÀNG
+                // - Ngược lại => tính CÓ HÀNG
+                $lyDoCapThem = mb_strtolower(trim((string)($row['ly_do_cap_them'] ?? '')),'UTF-8');
+                $isQuaCau = ($lyDoCapThem !== '' && mb_strpos($lyDoCapThem, 'qua cầu') !== false) || ($lyDoCapThem !== '' && mb_strpos($lyDoCapThem, 'qua cau') !== false);
+
+                if ($isQuaCau) {
+                    $tieuHaoKH += $dau; // "qua cầu" là KH
+                } else {
+                    $tieuHaoCH += $dau; // Các loại cấp thêm khác là CH
+                }
             } else {
                 $dau = floor((float)($row['dau_tinh_toan_lit'] ?? 0));
                 if ($kl <= 1e-6) {

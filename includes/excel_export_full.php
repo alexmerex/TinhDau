@@ -858,7 +858,24 @@ function createDAUTONSheet($spreadsheet, $templatePath, $rowsInGroup, $currentMo
             $sheet->setCellValueByColumnAndRow(21,$currentRow,$row['ghi_chu']??''); // GHI CHÚ cột U
             $v1=($tot>0 && $tot<80)?$fuelInt:0; $v2=($tot>=80 && $tot<=200)?$fuelInt:0; $v3=($tot>200)?$fuelInt:0;
             setIntHelper($sheet,22,$currentRow,$v1,true); setIntHelper($sheet,23,$currentRow,$v2,true); setIntHelper($sheet,24,$currentRow,$v3,true); // <80 V, 80-200 W, >200 X - hiển thị '-' nếu = 0
-            $tripKey=$ship.'|'.$soChuyen; $isFirstTrip=($soChuyen!=='' && $klvcInt > 0 && !isset($tripSeenByShip[$tripKey])); if($isFirstTrip){ $subtotal[7]+=$val_kh; $subtotal[8]+=$val_ch; $subtotal[9]+=$tot; $subtotal[13]+=$klvcInt; $subtotal[14]+=$kllcInt; $tripSeenByShip[$tripKey]=true; }
+
+            // Cộng dồn Cự ly KH/CH cho tất cả các dòng (theo đúng feedback "Cự ly không hàng em cho cộng xuống nhé")
+            // → subtotal[7]: Cự ly KH, subtotal[8]: Cự ly CH
+            $subtotal[7] += $val_kh;
+            $subtotal[8] += $val_ch;
+            // subtotal[9] (Tổng cự ly) được cộng dồn theo từng dòng; về mặt số học = subtotal[7] + subtotal[8]
+            $subtotal[9] += $tot;
+
+            // KLVC, SL luân chuyển chỉ cộng một lần cho mỗi chuyến có hàng (giữ nguyên logic cũ)
+            $tripKey = $ship.'|'.$soChuyen;
+            $isFirstTrip = ($soChuyen!=='' && $klvcInt > 0 && !isset($tripSeenByShip[$tripKey]));
+            if($isFirstTrip){
+                $subtotal[13] += $klvcInt;
+                $subtotal[14] += $kllcInt;
+                $tripSeenByShip[$tripKey] = true;
+            }
+
+            // Dầu sử dụng & phân loại cự ly vẫn cộng cho từng dòng
             $subtotal[15]+=$fuelInt; $subtotal[22]+=$v1; $subtotal[23]+=$v2; $subtotal[24]+=$v3;
             $sheet->getStyle("A{$currentRow}:X{$currentRow}")->applyFromArray($defaultCellStyle);
             // Căn giữa cho STT, Tên PT, Số ĐK, Số chuyến, Cự ly
@@ -1044,47 +1061,106 @@ function createDAUTONSheet($spreadsheet, $templatePath, $rowsInGroup, $currentMo
     $sheet->mergeCells('A9:L9');
 
     // Dữ liệu bắt đầu từ dòng 10 (sau dòng tháng)
+    // Cột BC TH:
+    // D = Tổng cự ly (Km)
+    // E = KLVC (T)
+    // F = SL luân chuyển (T.km)
+    // G = Dầu SD không hàng
+    // H = Dầu SD có hàng
+    // I = Tổng dầu SD
+    // J/K/L = Phân loại dầu theo tổng cự ly của chuyến (<80 / 80-200 / >200)
+    //
+    // Lưu ý nghiệp vụ:
+    // - Một chuyến có thể bị tách nhiều dòng (đổi lệnh/___idx). Với BC TH phải tính theo CHUYẾN:
+    //   + Tổng cự ly/KLVC/SL luân chuyển: cộng 1 lần/chuyến (chỉ khi chuyến có hàng)
+    //   + Dầu SD (KH/CH) & phân loại <80/80-200/>200: cũng tính 1 lần/chuyến để tránh cộng trùng.
+    // - Dòng cap_them: cộng vào Dầu SD KH và Tổng dầu, và mặc định vào <80.
     $currentRow=10; $stt=1; $sumCols=[4,5,6,7,8,9,10,11,12]; $grandTotals=array_fill_keys($sumCols,0);
 
     foreach($shipData as $ship=>$shipRows){
-            $subtotal=array_fill_keys($sumCols,0); $tripSeen=[];
+            $subtotal=array_fill_keys($sumCols,0);
+            $tripSeen=[];      // chuyến có hàng đã tính (để đếm số chuyến và cộng 1 lần)
+            $capThemSeen=[];   // chống cộng trùng cap_them theo ID (phòng trường hợp dữ liệu lặp)
             
             foreach($shipRows as $row){
-                $soChuyen=trim((string)($row['so_chuyen']??'')); $isCapThem=((int)($row['cap_them']??0)===1);
+                $soChuyen=trim((string)($row['so_chuyen']??''));
+                $isCapThem=((int)($row['cap_them']??0)===1);
                 $isChuyenDau=((int)($row['cap_them']??0)===2);
 
-                // Bỏ qua chuyển dầu - không tính vào dầu sử dụng trong báo cáo tổng hợp
-                // Chuyển dầu chỉ ảnh hưởng đến tồn cuối kỳ (đã xử lý trong sheet DAUTON)
+                // Bỏ qua chuyển dầu - không tính vào dầu sử dụng trong BC TH
                 if($isChuyenDau) continue;
 
+                // 1) Dòng cấp thêm: cộng vào DẦU SD KH + TỔNG DẦU, mặc định vào <80
                 if($isCapThem){
-                    $litVal=(float)($row['dau_tinh_toan_lit'] ?? ($row['so_luong_cap_them_lit']??0)); $litInt=toIntHelper($litVal);
-                    $subtotal[7]+=$litInt; // DẦU SỬ DỤNG KHÔNG HÀNG (cấp thêm không có hàng)
-                    $subtotal[9]+=$litInt; // Tổng dầu SD
-                    // Cấp thêm không có cự ly → Mặc định gán vào cột <80km
+                    // Chống cộng trùng nếu có id
+                    $capId = (string)($row['id'] ?? $row['___idx'] ?? '');
+                    if($capId !== '' && isset($capThemSeen[$capId])) { continue; }
+                    if($capId !== '') { $capThemSeen[$capId] = true; }
+
+                    $litVal=(float)($row['so_luong_cap_them_lit'] ?? 0);
+                    if($litVal <= 0){
+                        // fallback: một số dữ liệu cũ có thể lưu vào dau_tinh_toan_lit
+                        $litVal=(float)($row['dau_tinh_toan_lit'] ?? 0);
+                    }
+                    $litInt=toIntHelper($litVal);
+                    // Phân loại dầu cho dòng CẤP THÊM theo nghiệp vụ:
+                    // - Nếu lý do có chứa "qua cầu" => tính KHÔNG HÀNG
+                    // - Ngược lại => tính CÓ HÀNG
+                    $lyDoCapThem = mb_strtolower(trim((string)($row['ly_do_cap_them'] ?? '')),'UTF-8');
+                    $isQuaCau = ($lyDoCapThem !== '' && mb_strpos($lyDoCapThem, 'qua cầu') !== false) || ($lyDoCapThem !== '' && mb_strpos($lyDoCapThem, 'qua cau') !== false);
+                    if ($isQuaCau) {
+                        $subtotal[7]+=$litInt; // DẦU SD KH
+                    } else {
+                        $subtotal[8]+=$litInt; // DẦU SD CH
+                    }
+                    $subtotal[9]+=$litInt; // TỔNG DẦU SD
                     $subtotal[10]+=$litInt; // <80km
                     continue;
                 }
 
+                // 2) Dòng chuyến thường: BC TH phải khớp số liệu với sheet BCTHANG
+                // - TỔNG CỰ LY (BC TH) = tổng cột "TỔNG CỰ LY" (G+H) của BCTHANG cho tàu đó (cộng theo TỪNG DÒNG)
+                // - DẦU SD KH (BC TH) = tổng DẦU SD (Lít) của các dòng BCTHANG mà "KLVC (T)" trống/0
+                // - DẦU SD CH (BC TH) = tổng DẦU SD (Lít) của các dòng BCTHANG mà "KLVC (T)" > 0
+                // - KLVC / SL luân chuyển và SỐ CHUYẾN: vẫn chỉ cộng/đếm 1 lần cho mỗi chuyến có hàng (tránh trùng do đổi lệnh)
                 $tripKey=$ship.'|'.$soChuyen;
+
+                $valKh=toIntHelper($row['cu_ly_khong_hang_km']??0);
+                $valCh=toIntHelper($row['cu_ly_co_hang_km']??0);
+                $tot=$valKh+$valCh;
+
+                // Tổng cự ly: cộng đúng theo cột TỔNG CỰ LY của BCTHANG (từng dòng)
+                $subtotal[4]+=$tot;
+
+                // Dầu SD theo từng dòng (giống BCTHANG cột O)
+                $fuelInt=toIntHelper($row['dau_tinh_toan_lit']??0);
+
+                // Phân loại KH/CH theo điều kiện "ở dòng đó không có KLVC (T)" (tức klvc == 0)
+                // (không dựa theo khoi_luong_van_chuyen_t vì thực tế BCTHANG có thể để trống KLVC khi không hàng)
+                $klvcLine=toIntHelper($row['khoi_luong_van_chuyen_t']??0);
+                if($klvcLine <= 0){
+                    $subtotal[7]+=$fuelInt; // KH
+                } else {
+                    $subtotal[8]+=$fuelInt; // CH
+                }
+                $subtotal[9]+=$fuelInt;
+
+                // Phân loại theo tổng cự ly của DÒNG (như BCTHANG đang phân loại)
+                $v1=($tot>0 && $tot<80)?$fuelInt:0;
+                $v2=($tot>=80 && $tot<=200)?$fuelInt:0;
+                $v3=($tot>200)?$fuelInt:0;
+                $subtotal[10]+=$v1; $subtotal[11]+=$v2; $subtotal[12]+=$v3;
+
+                // Chỉ đếm/tính chuyến có hàng 1 lần
                 $klvc=(float)($row['khoi_luong_van_chuyen_t']??0);
-                // Chỉ đếm chuyến có hàng (klvc > 0)
                 $isFirstTrip=($soChuyen!=='' && $klvc > 0 && !isset($tripSeen[$tripKey]));
                 if($isFirstTrip){
-                    $tot=toIntHelper($row['cu_ly_khong_hang_km']??0)+toIntHelper($row['cu_ly_co_hang_km']??0);
-                    $klvcInt=toIntHelper($row['khoi_luong_van_chuyen_t']??0); $kllcInt=toIntHelper($row['khoi_luong_luan_chuyen']??0);
-                    $subtotal[4]+=$tot; $subtotal[5]+=$klvcInt; $subtotal[6]+=$kllcInt;
+                    $klvcInt=toIntHelper($row['khoi_luong_van_chuyen_t']??0);
+                    $kllcInt=toIntHelper($row['khoi_luong_luan_chuyen']??0);
+                    $subtotal[5]+=$klvcInt;
+                    $subtotal[6]+=$kllcInt;
                     $tripSeen[$tripKey]=true;
                 }
-
-                $fuelInt=toIntHelper($row['dau_tinh_toan_lit']??0);
-                $tot=toIntHelper($row['cu_ly_khong_hang_km']??0)+toIntHelper($row['cu_ly_co_hang_km']??0);
-                $kl=(float)($row['khoi_luong_van_chuyen_t']??0);
-                // Phân loại dầu: KH (không hàng) vs CH (có hàng)
-                if($kl <= 1e-6){ $subtotal[7]+=$fuelInt; } else { $subtotal[8]+=$fuelInt; }
-                $subtotal[9]+=$fuelInt; // Tổng dầu
-                $v1=($tot>0 && $tot<80)?$fuelInt:0; $v2=($tot>=80 && $tot<=200)?$fuelInt:0; $v3=($tot>200)?$fuelInt:0;
-                $subtotal[10]+=$v1; $subtotal[11]+=$v2; $subtotal[12]+=$v3;
             }
 
             // Ghi dòng tổng cho tàu

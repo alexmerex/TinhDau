@@ -13,6 +13,7 @@
 - [Yêu Cầu Hệ Thống](#-yêu-cầu-hệ-thống)
 - [Cài Đặt](#-cài-đặt)
 - [Sử Dụng](#-sử-dụng)
+- [Quản Lý Dữ Liệu (CSV)](#-quản-lý-dữ-liệu-csv)
 - [Cấu Trúc Dự Án](#-cấu-trúc-dự-án)
 - [Tài Liệu Kỹ Thuật](#-tài-liệu-kỹ-thuật)
 - [API Documentation](#-api-documentation)
@@ -96,6 +97,10 @@
    ```bash
    composer install
    ```
+
+   Lưu ý:
+   - Nếu `vendor/` đã tồn tại sẵn (đã commit), bạn vẫn nên chạy `composer install` để đảm bảo đủ thư viện.
+   - **Không commit `vendor/`**, chỉ commit `composer.lock` để cố định phiên bản thư viện.
 
 4. **Cấu hình quyền truy cập**
    - Đảm bảo thư mục `data/` có quyền ghi
@@ -181,6 +186,20 @@ admin,$2y$10$...,admin,2025-01-01 00:00:00
 3. Thêm/Xóa/Sửa dầu tồn
 4. Chuyển dầu giữa các tàu
 5. Xuất báo cáo dầu tồn
+
+## 💾 Quản Lý Dữ Liệu (CSV)
+
+Hệ thống sử dụng các file CSV trong thư mục `data/` để lưu trữ toàn bộ dữ liệu vận hành, bao gồm:
+- `users.csv`: Tài khoản người dùng
+- `tau_phan_loai.csv`: Thông tin và hệ số của tàu
+- `dau_ton.csv`: Dữ liệu dầu tồn
+- `tuyen_duong_log.csv`: Lịch sử các tuyến đường
+- ... và các file dữ liệu khác.
+
+### 🚨 Lưu ý quan trọng:
+- **Đây là dữ liệu production**: Các file này chứa dữ liệu thật của hệ thống.
+- **Backup thường xuyên**: Nên backup thư mục `data/` định kỳ để tránh mất mát dữ liệu.
+- **Commit cẩn thận**: Khi commit các file trong `data/`, hãy chắc chắn rằng bạn muốn cập nhật dữ liệu đó lên repository. Cân nhắc việc chỉ commit thay đổi cấu trúc hoặc dữ liệu mẫu, không commit dữ liệu nhạy cảm hoặc thay đổi liên tục.
 
 ## 📁 Cấu Trúc Dự Án
 
@@ -355,34 +374,8 @@ Tài liệu này bao gồm:
 
 ## 🧪 Testing
 
-### Chạy Tests
-
-```bash
-# Chạy tất cả tests
-php vendor/bin/phpunit
-
-# Chạy test cụ thể
-php vendor/bin/phpunit tests/Unit/DauTonTest.php
-
-# Chạy với coverage
-php vendor/bin/phpunit --coverage-html coverage/
-```
-
-### Test Structure
-
-```
-tests/
-├── Unit/               # Unit tests
-│   ├── DauTonTest.php
-│   ├── HeSoTauTest.php
-│   └── ...
-├── Feature/           # Feature tests
-│   ├── AuthenticationTest.php
-│   ├── ExcelExportTest.php
-│   └── ...
-└── Integration/       # Integration tests
-    └── ApiTest.php
-```
+Hiện tại dự án **không kèm bộ test tự động** trong repo vận hành.
+Nếu bạn cần bổ sung PHPUnit/tests sau này, hãy tạo thư mục `tests/` và cấu hình `phpunit.xml` phù hợp.
 
 ## 🤝 Đóng Góp
 

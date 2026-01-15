@@ -46,7 +46,6 @@ backup/
 
 # Composer
 composer.phar
-composer.lock
 
 # Windows special files
 nul
