@@ -41,8 +41,18 @@ backup/
 *.bak
 *.backup
 
-# CSV data files (nếu không muốn push dữ liệu)
-# data/*.csv
+# CSV/JSON data & operational artifacts (KHÔNG push dữ liệu vận hành)
+data/*.csv
+data/*.json
+data/*.log
+/*.csv
+# Some logs may be stored outside data/
+*.log
+
+# PHPUnit caches
+.phpunit.result.cache
+*.cache
+
 
 # Composer
 composer.phar

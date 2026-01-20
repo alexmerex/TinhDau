@@ -1,4 +1,0 @@
-id,username,password,full_name,role,status,created_at,updated_at
-1,admin,$2y$10$z8Y1I6wqOZM.37WMsA019OjUl6UeKFxGgtlI2D9zREJj4DrtzueRi,,admin,active,"2025-11-15 04:05:31","2025-11-15 04:05:31"
-2,user1,$2y$10$DoZOQs99h9.ZNbL7WUk/auQbBaXQDHNbG3l4dYIPfU/FH2fkhdYsO,Khoa,user,active,"2025-11-15 09:12:18","2025-12-06 21:03:43"
-3,cuongta,$2y$10$dw76ooIeriDYRoxVQvVeYOBZVaAq4wSDhksS22ouqbfrut6/wvfni,"Cường Support",admin,active,"2025-12-10 16:19:35","2025-12-10 16:19:35"
