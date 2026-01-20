@@ -43,6 +43,7 @@ backup/
 
 # CSV/JSON data & operational artifacts (KHÔNG push dữ liệu vận hành)
 data/*.csv
+!data/*.sample.csv
 data/*.json
 data/*.log
 /*.csv

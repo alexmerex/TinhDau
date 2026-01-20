@@ -1,0 +1,2 @@
+id,username,password,full_name,role,status,created_at,updated_at
+1,admin,$2y$10$CHANGE_ME_HASHED_PASSWORD,Administrator,admin,active,2026-01-01 00:00:00,2026-01-01 00:00:00
