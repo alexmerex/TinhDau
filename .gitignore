@@ -19,6 +19,7 @@ error_log.txt
 # IDE files
 .vscode/
 .idea/
+.claude/
 *.swp
 *.swo
 *~
