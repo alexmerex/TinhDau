@@ -37,6 +37,15 @@ TinhDau là ứng dụng **Vanilla PHP** phục vụ nghiệp vụ **tính toán
 
 ---
 
+## 🏢 Tình trạng triển khai thực tế
+
+Hệ thống hiện đang được đưa vào sử dụng trong nghiệp vụ thực tế tại **phòng Kỹ thuật Vật tư** của **VICEM**.
+
+- **Phạm vi**: tính toán nhiên liệu, theo dõi dầu tồn và xuất báo cáo phục vụ vận hành.
+- **Lưu ý**: Repo này đã được chuẩn hoá để **không** đẩy dữ liệu vận hành lên GitHub (xem mục [Vận hành & an toàn dữ liệu](#-vận-hành--an-toàn-dữ-liệu)).
+
+---
+
 ## ✅ Yêu cầu hệ thống
 
 - **PHP**: >= 7.4
