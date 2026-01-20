@@ -44,6 +44,14 @@ Hệ thống hiện đang được đưa vào sử dụng trong nghiệp vụ th
 - **Phạm vi**: tính toán nhiên liệu, theo dõi dầu tồn và xuất báo cáo phục vụ vận hành.
 - **Lưu ý**: Repo này đã được chuẩn hoá để **không** đẩy dữ liệu vận hành lên GitHub (xem mục [Vận hành & an toàn dữ liệu](#-vận-hành--an-toàn-dữ-liệu)).
 
+## 🙏 Ghi nhận & cảm ơn
+
+Xin gửi lời cảm ơn tới **đội ngũ vận hành kỹ thuật WokuShop** vì đã hỗ trợ và đồng hành trong quá trình triển khai và vận hành hệ thống.
+
+- **Vai trò của tôi**: phụ trách chính về thiết kế, phát triển và chịu trách nhiệm chất lượng/tiến độ của dự án.
+- **WokuShop**: hỗ trợ vận hành kỹ thuật, phối hợp triển khai và phản hồi thực tế để hệ thống ổn định hơn trong môi trường sử dụng.
+
+
 ---
 
 ## ✅ Yêu cầu hệ thống
