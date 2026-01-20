@@ -1,179 +1,239 @@
-# 🚢 **TinhDau** – Hệ Thống Tính Và Quản Lý Nhiên Liệu Tàu
+# 🚢 TinhDau – Hệ thống tính & quản lý nhiên liệu tàu (CSV-first)
 
-[![PHP Version](https://img.shields.io/badge/PHP-7.4%2B-blue.svg)](https://www.php.net/)
+[![PHP Version](https://img.shields.io/badge/PHP-%3E%3D7.4-blue.svg)](https://www.php.net/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Project Status](https://img.shields.io/badge/status-v1.3.8-success.svg)](#%EF%B8%8F-phi%C3%AAn-b%E1%BA%A3n-hi%E1%BB%87n-t%E1%BA%A1i)
 
-> Hệ thống **TinhDau** hỗ trợ quản lý, theo dõi, và tính toán nhiên liệu tiêu thụ cho đội tàu vận chuyển xi măng _Hà Tiên_. Ứng dụng được xây dựng trên **Vanilla PHP** (không framework) với kiến trúc module hoá, sử dụng **CSV** làm kho lưu trữ dữ liệu nhằm đơn giản hoá triển khai.
+TinhDau là ứng dụng **Vanilla PHP** phục vụ nghiệp vụ **tính toán nhiên liệu**, **quản lý dầu tồn**, và **xuất báo cáo Excel** cho đội tàu vận hành. Hệ thống lưu trữ dữ liệu bằng **CSV/JSON file** trong thư mục `data/` để dễ triển khai trong môi trường nội bộ (XAMPP/Apache).
 
 ---
 
-## 📑 Mục Lục
+## 📌 Tổng quan nhanh
 
-- [Giới Thiệu](#-giới-thiệu)
-- [Tính Năng Chính](#-tính-năng-chính)
-- [Công Nghệ & Phụ Thuộc](#-công-nghệ--phụ-thuộc)
-- [Yêu Cầu Hệ Thống](#-yêu-cầu-hệ-thống)
-- [Hướng Dẫn Cài Đặt](#-hướng-dẫn-cài-đặt)
+- **Entry point chính**: `index.php` (yêu cầu đăng nhập).
+- **Dữ liệu vận hành**: `data/*.csv` và một số `data/*.json`.
+- **Tính toán nhiên liệu**: `models/TinhToanNhienLieu.php`.
+- **Lưu kết quả / lịch sử chuyến**: `models/LuuKetQua.php` → `data/ket_qua_tinh_toan.csv`.
+- **Quản lý dầu tồn**: `models/DauTon.php` và UI `quan_ly_dau_ton.php` / `admin/quan_ly_dau_ton.php`.
+- **Báo cáo Excel**: `includes/` + templates `template_header/` (dựa trên PhpSpreadsheet).
+
+---
+
+## 📑 Mục lục
+
+- [Yêu cầu hệ thống](#-yêu-cầu-hệ-thống)
+- [Cài đặt](#-cài-đặt)
   - [Windows (XAMPP)](#windows-xampp)
-  - [Linux / MacOS](#linux--macos)
-- [Sử Dụng Nhanh](#-sử-dụng-nhanh)
-- [Cấu Trúc Dự Án](#-cấu-trúc-dự-án)
-- [API](#-api)
-- [Quản Lý Dữ Liệu CSV](#-quản-lý-dữ-liệu-csv)
-- [Đóng Góp](#-đóng-góp)
-- [Roadmap](#-roadmap)
+  - [Linux/MacOS](#linuxmacos)
+- [Cấu hình](#-cấu-hình)
+- [Tài khoản & phân quyền](#-tài-khoản--phân-quyền)
+- [Dữ liệu (CSV/JSON)](#-dữ-liệu-csvjson)
+- [Chức năng chính](#-chức-năng-chính)
+- [API & AJAX endpoints](#-api--ajax-endpoints)
+- [Debug & Logging](#-debug--logging)
+- [Cấu trúc thư mục](#-cấu-trúc-thư-mục)
+- [Vận hành & an toàn dữ liệu](#-vận-hành--an-toàn-dữ-liệu)
+- [Đóng góp](#-đóng-góp)
 - [License](#-license)
 
 ---
 
-## 🎯 Giới Thiệu
+## ✅ Yêu cầu hệ thống
 
-TinhDau nhằm thay thế tính toán thủ công bằng Excel, cung cấp quy trình **minh bạch** và **chính xác** cho:
+- **PHP**: >= 7.4
+- **Web server**: Apache (khuyến nghị XAMPP trên Windows)
+- **Extensions**:
+  - `xml`
+  - `zip`
+  - `gd`
+  - `mbstring`
+- **Composer**: để cài `phpoffice/phpspreadsheet`
 
-- Theo dõi dầu tồn kho từng tàu ⛽️
-- Tính toán nhiên liệu tiêu thụ theo quãng đường & khối lượng 📈
-- Xuất báo cáo Excel với template chuẩn hoá 📄
-- Quản lý người dùng, phân quyền & nhật ký hoạt động 🔐
+---
 
-Phiên bản hiện tại **v1.3.8** đang triển khai thực tế và được bảo trì thường xuyên.
-
-## ✨ Tính Năng Chính
-
-- **Tính toán nhiên liệu tự động** theo hệ số tàu, quãng đường (đa segment) & loại hàng.
-- **Quản lý dầu tồn**: nhập – xuất – chuyển dầu giữa các tàu và thống kê theo thời gian.
-- **Báo cáo Excel** (PhpSpreadsheet) với header/footer tuỳ biến.
-- **Phân quyền**: *admin* / *user*; hỗ trợ đổi mật khẩu.
-- **REST API & AJAX** cho frontend và bên thứ ba.
-- **Lịch sử truy vết**: ghi lại mọi phép tính & thao tác dữ liệu.
-
-## 🛠 Công Nghệ & Phụ Thuộc
-
-| Thành phần | Phiên bản |
-|------------|-----------|
-| PHP        | >= 7.4    |
-| Composer   | >= 2.0    |
-| PhpSpreadsheet | ^1.29 |
-| PHPUnit *(tùy chọn)* | ^10 |
-
-> Lưu ý: Dữ liệu được lưu dưới dạng **CSV** nên **không cần** máy chủ CSDL; tuy nhiên Roadmap 2.0 sẽ chuyển sang MySQL/PostgreSQL.
-
-## 💻 Yêu Cầu Hệ Thống
-
-- Apache/Nginx hoặc XAMPP/Laragon (Windows)
-- Tiện ích mở rộng PHP bắt buộc: `xml`, `zip`, `gd`, `mbstring`
-- Quyền ghi thư mục `data/` (để lưu *.csv* & file Excel sinh ra)
-
-## 🚀 Hướng Dẫn Cài Đặt
+## 🚀 Cài đặt
 
 ### Windows (XAMPP)
 
+1. Copy/clone dự án vào:
+
+```text
+C:\xampp\htdocs\tinh-dau-2
+```
+
+2. Cài dependency:
+
 ```bash
-# 1. Cài XAMPP ≥ 7.4 (https://www.apachefriends.org/)
-# 2. Clone source vào htdocs
-cd C:\xampp\htdocs
-git clone https://github.com/<your-org>/tinh-dau.git tinh-dau-2
-cd tinh-dau-2
-# 3. Cài dependecies
 composer install
 ```
 
-Mở **XAMPP Control Panel** → bật _Apache_. Truy cập: <http://localhost/tinh-dau-2>
+3. Bật Apache trong XAMPP, truy cập:
 
-### Linux / MacOS
+```text
+http://localhost/tinh-dau-2/
+```
+
+### Linux/MacOS
+
+1. Clone + cài dependency:
 
 ```bash
-# Clone & cài đặt
-git clone https://github.com/<your-org>/tinh-dau.git
-cd tinh-dau
+git clone https://github.com/alexmerex/TinhDau.git
+cd TinhDau
 composer install
-# Cấp quyền ghi cho data/
+```
+
+2. Cấp quyền ghi cho `data/`:
+
+```bash
 chmod -R 775 data
 ```
 
-Thiết lập **VirtualHost** (Apache) hoặc **server block** (Nginx) trỏ tới thư mục gốc dự án.
+---
+
+## ⚙️ Cấu hình
+
+- **Cấu hình hằng số & đường dẫn file dữ liệu**: `config/database.php`
+  - `HE_SO_TAU_FILE`: `bang_he_so_tau_cu_ly_full_v2.csv`
+  - `KHOA_CACH_FILE`: `khoang_duong.csv`
+  - `KET_QUA_DIR`: `data/`
+  - `KET_QUA_FILE`: `data/ket_qua_tinh_toan.csv`
+  - `VERSION`: hiện đang là `1.3.8`
+
+- **Cấu hình debug/logging**: `config/debug.php`
+  - `DEBUG_MODE` (development/prod)
+  - `LOG_LEVEL`
+  - `LOG_FILE` mặc định: `data/debug.log`
 
 ---
 
-## ⚡️ Sử Dụng Nhanh
+## 👤 Tài khoản & phân quyền
 
-1. **Đăng nhập** với tài khoản `admin / admin123` (tạo lần đầu trong `data/users.csv`).
-2. Vào **Tính Nhiên Liệu** → chọn tàu, điểm đi/đến, khối lượng, click **Tính**.
-3. Vào **Báo Cáo** để **Xuất Excel** (`BCTHANG_*` hoặc `DAUTON_*`).
+- Hệ thống có module đăng nhập tại `auth/`.
+- File dữ liệu user: `data/users.csv`.
+- Model quản lý user: `models/User.php`.
 
-> Thao tác chi tiết hơn xem tại [docs/README.md](docs/README.md).
+### Tạo tài khoản admin lần đầu
 
----
+Hiện tại dự án **không có** script `create_admin.php`.
 
-## 📁 Cấu Trúc Dự Án
+Cách đơn giản nhất là thêm trực tiếp vào `data/users.csv` (hoặc dùng UI quản trị nếu đã có admin):
+
+- Password được hash bằng `password_hash()`.
+- Các cột theo `models/User.php`:
 
 ```text
-├── admin/          # Trang quản trị (UI PHP thuần)
-├── ajax/           # AJAX endpoints (JSON)
-├── api/            # REST API (POST/GET)
-├── assets/         # JS/CSS/Images tĩnh
-├── auth/           # Xác thực & phân quyền
-├── config/         # Hằng số & file cấu hình
-├── data/           # ***CSV production data***
-├── docs/           # Tài liệu kỹ thuật nội bộ
-├── includes/       # Helper chung & template export
-├── models/         # Lớp PHP mô phỏng DB
-├── src/            # Mã nguồn thuần PHP khác
-├── template_header/# Excel templates (xlsx)
-└── tests/          # (tuỳ chọn) Unit tests
+id,username,password,full_name,role,status,created_at,updated_at
 ```
 
 ---
 
-## 🔌 API
+## 💾 Dữ liệu (CSV/JSON)
 
-Ví dụ **Insert Trip** (`POST /api/insert_trip.php`):
+Thư mục `data/` là nơi lưu **dữ liệu vận hành**. Một số file chính:
 
-```json
-{
-  "ten_phuong_tien": "TAU_001",
-  "so_chuyen": 1,
-  "diem_di": "DIEM_A",
-  "diem_den": "DIEM_B",
-  "khoi_luong_van_chuyen_t": 1000,
-  "ngay_di": "2025-01-15",
-  "loai_hang": "XI_MANG"
-}
+- `users.csv`: người dùng
+- `tau_phan_loai.csv`: phân loại tàu
+- `cay_xang.csv`: danh mục cây xăng
+- `loai_hang.csv`: danh mục loại hàng
+- `tuyen_duong_log.csv`: log tuyến đường
+- `dau_ton.csv` (+ `dau_ton_2.csv`): dữ liệu dầu tồn
+- `ket_qua_tinh_toan.csv` (+ `ket_qua_tinh_toan_2.csv`): lịch sử kết quả tính
+- `order_overrides.json`, `transfer_overrides.json`: cấu hình/override phục vụ sắp xếp/chuyển dầu
+
+**Lưu ý quan trọng**:
+
+- `data/` thường chứa dữ liệu thật. Trước khi push/public repo cần rà soát dữ liệu nhạy cảm.
+- Nên backup định kỳ `data/`.
+
+---
+
+## ✨ Chức năng chính
+
+- **Tính toán nhiên liệu**
+  - UI chính: `index.php`
+  - Hỗ trợ tuyến nhiều đoạn (multi-segment), đổi lệnh đa điểm
+  - Hỗ trợ nhập ngày theo định dạng VN và parse qua helper `parse_date_vn()`
+
+- **Quản lý dầu tồn**
+  - Trang nghiệp vụ: `quan_ly_dau_ton.php`
+  - Khu vực admin: `admin/quan_ly_dau_ton.php`
+
+- **Báo cáo Excel**
+  - Sử dụng `phpoffice/phpspreadsheet`
+  - Template header trong `template_header/`
+  - Logic export nằm chủ yếu ở `includes/`
+
+---
+
+## 🔌 API & AJAX endpoints
+
+Thư mục `api/` và `ajax/` cung cấp các endpoint phục vụ UI.
+
+Một số endpoint tiêu biểu:
+
+- `api/insert_trip.php`: tạo chuyến
+- `api/reorder_segments.php`: sắp xếp lại các đoạn tuyến
+- `api/update_transfer.php`: cập nhật chuyển dầu
+- `api/search_diem.php`: tìm điểm
+- `ajax/get_trips.php`: lấy danh sách chuyến theo tàu/tháng/năm
+- `ajax/get_trip_details.php`: chi tiết chuyến
+
+> Danh sách đầy đủ xem trong thư mục `api/` và `ajax/` (hiện repo chưa có file `docs/API.md`).
+
+---
+
+## 🧰 Debug & Logging
+
+- Cấu hình tại `config/debug.php`.
+- Helper debug nằm trong `includes/helpers.php` (ví dụ: `debug_log()`, `debug_request()`, `debug_exception()`, `ddd()`).
+
+Khuyến nghị:
+
+- **Production**: đặt `DEBUG_MODE=false`, `LOG_LEVEL='ERROR'`.
+- Không commit file log/CSV dữ liệu nếu repo public.
+
+---
+
+## 📁 Cấu trúc thư mục
+
+```text
+.
+├── admin/                # UI quản trị
+├── ajax/                 # AJAX endpoints (JSON)
+├── api/                  # API endpoints
+├── assets/               # CSS/JS/Images
+├── auth/                 # đăng nhập/đăng xuất/phân quyền
+├── backup/               # (tuỳ môi trường)
+├── config/               # database.php, debug.php, ...
+├── data/                 # CSV/JSON storage (dữ liệu vận hành)
+├── docs/                 # tài liệu nội bộ
+├── includes/             # helpers, export excel, layout
+├── models/               # các model thao tác CSV
+├── src/                  # module phụ trợ (Report/...)
+├── template_header/      # Excel templates
+├── vendor/               # composer dependencies
+├── composer.json
+└── index.php
 ```
 
-_Toàn bộ danh sách endpoint xem tại [docs/API.md](docs/API.md) (đang cập nhật)._ 
+---
+
+## 🛡 Vận hành & an toàn dữ liệu
+
+- **Không khuyến nghị commit** dữ liệu thật trong `data/` lên repo public.
+- Nếu dùng GitHub để backup nội bộ, cân nhắc:
+  - Tách dữ liệu production sang thư mục ngoài repo
+  - Hoặc dùng `.gitignore` cho `data/*.csv`, `data/*.log`, `data/*.json` (tuỳ chính sách)
 
 ---
 
-## 💾 Quản Lý Dữ Liệu CSV
+## 🤝 Đóng góp
 
-- **data/** chứa **tất cả** dữ liệu sản xuất. Mỗi file đại diện 1 bảng.
-- Sao lưu định kỳ; tránh commit dữ liệu nhạy cảm.
-- Khi thay đổi **schema CSV** phải cập nhật `models/` & docs.
-
----
-
-## 🤝 Đóng Góp
-
-1. Fork → Branch (`feat/<tên>`) → Commit (conventional) → PR.
-2. Code style **PSR-12**, comment PHPDoc.
-3. Viết unit test (nếu thêm logic) và chạy `composer test`.
-4. Thảo luận qua **GitHub Issues** / Discussions.
-
----
-
-## 🗺 Roadmap
-
-| Phiên bản | Trạng thái | Nội dung |
-|-----------|-----------|----------|
-| 1.4       | _current_ | Excel export, quản lý dầu tồn nâng cao |
-| 1.5       | 🚧        | Docker, CI/CD, test suite |
-| 2.0       | 🧭        | Database SQL, đa ngôn ngữ, responsive UI |
+- Codebase là PHP thuần, ưu tiên thay đổi nhỏ và kiểm thử trực tiếp luồng nghiệp vụ.
+- Nếu bổ sung test: hiện chưa có `tests/`/`phpunit.xml` trong dự án (file `.phpunit.result.cache` nếu có nên được ignore).
 
 ---
 
 ## 📜 License
 
-TinhDau được phát hành dưới giấy phép **MIT**. Xem chi tiết trong [LICENSE](LICENSE).
-
-> Made with ❤️ by **WokuShop Team**
+MIT License. Xem [LICENSE](LICENSE).
