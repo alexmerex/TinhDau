@@ -1177,8 +1177,10 @@
                         showAlert('Vui lòng nhập lý do tiêu hao', 'warning');
                         return false;
                     }
+                } else if (loaiCapThem === 'ro_dai_ve_sinh') {
+                    // Rô đai+ vệ sinh: không yêu cầu địa điểm
                 } else {
-                    // Nếu chọn "Ma nơ" hoặc "Qua cầu", cần nhập địa điểm (lý do sẽ tự động tạo)
+                    // Ma nơ / Qua cầu: cần nhập địa điểm (lý do sẽ tự động tạo)
                     if (!diaDiemCapThem || diaDiemCapThem.length === 0) {
                         showAlert('Vui lòng nhập địa điểm cấp thêm', 'warning');
                         return false;

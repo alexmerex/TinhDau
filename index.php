@@ -192,6 +192,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $lyDoCapThem = "Dầu ma nơ tại bến " . $diaDiemCapThem . " 01 chuyến";
             } elseif ($loaiCapThem === 'qua_cau') {
                 $lyDoCapThem = "Dầu bơm nước qua cầu " . $diaDiemCapThem . " 01 chuyến";
+            } elseif ($loaiCapThem === 'ro_dai_ve_sinh') {
+                $lyDoCapThem = "Dầu rô đai+ vệ sinh 01 máy chính";
             } else {
                 // Loại khác - dùng lý do tự nhập
                 $lyDoCapThem = $lyDoCapThemKhac;
@@ -1233,6 +1235,10 @@ include 'includes/header.php';
                                     <label class="form-check-label" for="loai_qua_cau">Qua cầu</label>
                                 </div>
                                 <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="loai_cap_them" id="loai_ro_dai_ve_sinh" value="ro_dai_ve_sinh" <?php echo ($formData['loai_cap_them'] === 'ro_dai_ve_sinh') ? 'checked' : ''; ?>>
+                                    <label class="form-check-label" for="loai_ro_dai_ve_sinh">Rô đai+ vệ sinh</label>
+                                </div>
+                                <div class="form-check form-check-inline">
                                     <input class="form-check-input" type="radio" name="loai_cap_them" id="loai_khac" value="khac" <?php echo ($formData['loai_cap_them'] === 'khac') ? 'checked' : ''; ?>>
                                     <label class="form-check-label" for="loai_khac">Khác</label>
                                 </div>
@@ -1426,23 +1432,42 @@ include 'includes/header.php';
                                 diaDiemWrapper.style.display = 'block';
                                 lyDoWrapper.style.display = 'none';
 
-                                // Thêm required cho địa điểm, bỏ required cho lý do
+                                // Không yêu cầu địa điểm cho Rô đai+ vệ sinh
                                 if (diaDiemInput) {
-                                    diaDiemInput.setAttribute('required', 'required');
-                                    diaDiemInput.disabled = false;
-                                    diaDiemInput.removeAttribute('disabled');
+                                    diaDiemInput.value = '';
+                                    diaDiemInput.removeAttribute('required');
+                                    diaDiemInput.disabled = true;
                                 }
+                                if (lyDoKhacInput) {
+                                    lyDoKhacInput.removeAttribute('required');
+                                }
+                            } else if (this.value === 'ro_dai_ve_sinh') {
+                                // Rô đai+ vệ sinh: KHÔNG cần địa điểm, ẩn ô địa điểm và ô lý do nhập
+                                if (diaDiemWrapper) diaDiemWrapper.style.display = 'none';
+                                if (lyDoWrapper) lyDoWrapper.style.display = 'none';
+
+                                // Bỏ required cho địa điểm và lý do tự nhập
+                                if (diaDiemInput) diaDiemInput.removeAttribute('required');
                                 if (lyDoKhacInput) lyDoKhacInput.removeAttribute('required');
 
-                                // Đổi help text về mặc định
+                                // Help text
                                 if (lyDoHelpText) {
-                                    lyDoHelpText.textContent = 'Lý do sẽ được tự động tạo dựa trên loại và địa điểm bạn chọn';
+                                    lyDoHelpText.textContent = 'Lý do sẽ được tự động tạo theo mẫu: Dầu rô đai+ vệ sinh 01 máy chính';
                                 }
 
-                                // Ngày cấp không bắt buộc cho Dầu ma nơ
+                                // Ngày cấp không bắt buộc
                                 if (ngayCapInput) ngayCapInput.required = false;
                                 if (ngayCapRequired) ngayCapRequired.style.display = 'none';
-                                if (ngayCapHint) ngayCapHint.textContent = 'Chọn ngày cấp thêm thực tế (tùy chọn cho Dầu ma nơ)';
+                                if (ngayCapHint) ngayCapHint.textContent = 'Chọn ngày cấp thêm thực tế (tùy chọn)';
+
+                                // Không yêu cầu địa điểm cho Rô đai+ vệ sinh
+                                if (diaDiemInput) {
+                                    diaDiemInput.value = '';
+                                    diaDiemInput.removeAttribute('required');
+                                }
+                                if (lyDoKhacInput) {
+                                    lyDoKhacInput.removeAttribute('required');
+                                }
                             } else {
                                 // Qua cầu: Hiện địa điểm, ẩn lý do nhập
                                 diaDiemWrapper.style.display = 'block';
@@ -1558,6 +1583,14 @@ include 'includes/header.php';
                             }
 
                             // Cập nhật vào ô readonly
+                            if (lyDoDisplayInputEl) {
+                                lyDoDisplayInputEl.value = displayText;
+                            }
+                        } else if (loai === 'ro_dai_ve_sinh') {
+                            const lyDoBase = 'Dầu rô đai+ vệ sinh 01 máy chính';
+                            displayText = soLuong ? `${lyDoBase} x ${soLuong} lít` : lyDoBase;
+                            resultText = `CẤP THÊM: ${displayText}`;
+                            
                             if (lyDoDisplayInputEl) {
                                 lyDoDisplayInputEl.value = displayText;
                             }
