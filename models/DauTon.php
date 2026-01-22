@@ -541,8 +541,10 @@ class DauTon {
                 // - Ngược lại => tính CÓ HÀNG
                 $lyDoCapThem = mb_strtolower(trim((string)($row['ly_do_cap_them'] ?? '')),'UTF-8');
                 $isQuaCau = ($lyDoCapThem !== '' && mb_strpos($lyDoCapThem, 'qua cầu') !== false) || ($lyDoCapThem !== '' && mb_strpos($lyDoCapThem, 'qua cau') !== false);
+                $isRoDai = ($lyDoCapThem !== '' && (mb_strpos($lyDoCapThem, 'rô đai') !== false || mb_strpos($lyDoCapThem, 'ro dai') !== false));
+                $isVeSinh = ($lyDoCapThem !== '' && (mb_strpos($lyDoCapThem, 'vệ sinh') !== false || mb_strpos($lyDoCapThem, 've sinh') !== false));
 
-                if ($isQuaCau) {
+                if ($isQuaCau || $isRoDai || $isVeSinh) {
                     $tieuHaoKH += $dau; // "qua cầu" là KH
                 } else {
                     $tieuHaoCH += $dau; // Các loại cấp thêm khác là CH

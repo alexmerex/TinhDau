@@ -174,6 +174,17 @@ Thư mục `data/` là nơi lưu **dữ liệu vận hành**. Một số file ch
 
 ---
 
+## 📝 Cập nhật gần đây
+
+- **Chuẩn hóa báo cáo cho lệnh “Cấp thêm”**
+  - Khi xuất báo cáo, dòng `Cấp thêm` ưu tiên lấy đúng giá trị người dùng nhập ở `so_luong_cap_them_lit` (chỉ fallback sang `dau_tinh_toan_lit` nếu trống/0) để tránh lệch số liệu.
+
+- **Quy tắc phân loại dầu ma nơ**
+  - Các lệnh `Cấp thêm` có lý do chứa `qua cầu` / `rô đai` / `vệ sinh` (kể cả không dấu: `qua cau`, `ro dai`, `ve sinh`) được tính vào **dầu sử dụng không hàng (KH)**.
+  - Quy tắc này được áp dụng nhất quán trong báo cáo tổng hợp (**BC TH**) và báo cáo dầu tồn theo tháng (**DAUTON**).
+
+---
+
 ## 🔌 API & AJAX endpoints
 
 Thư mục `api/` và `ajax/` cung cấp các endpoint phục vụ UI.

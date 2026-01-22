@@ -788,7 +788,11 @@ function createDAUTONSheet($spreadsheet, $templatePath, $rowsInGroup, $currentMo
             // Xử lý cấp thêm dầu
             if($isCapThem){
                 $lyDo=trim((string)($row['ly_do_cap_them']??''));
-                $litVal=(float)($row['dau_tinh_toan_lit'] ?? ($row['so_luong_cap_them_lit']??0));
+                // Cap them: ưu tiên dùng so_luong_cap_them_lit (giá trị nhập), chỉ fallback sang dau_tinh_toan_lit nếu trống/0
+                $litVal = (float)($row['so_luong_cap_them_lit'] ?? 0);
+                if ($litVal <= 0) {
+                    $litVal = (float)($row['dau_tinh_toan_lit'] ?? 0);
+                }
                 $litInt=toIntHelper($litVal);
                 // Hiển thị lý do cấp thêm vào cột TUYẾN ĐƯỜNG (cột F = 6) - chỉ hiển thị lý do, không có prefix
                 // Xóa prefix "CẤP THÊM:" nếu có trong $lyDo
@@ -1104,11 +1108,13 @@ function createDAUTONSheet($spreadsheet, $templatePath, $rowsInGroup, $currentMo
                     }
                     $litInt=toIntHelper($litVal);
                     // Phân loại dầu cho dòng CẤP THÊM theo nghiệp vụ:
-                    // - Nếu lý do có chứa "qua cầu" => tính KHÔNG HÀNG
+                    // - Nếu lý do có chứa "qua cầu" hoặc "rô đai" hoặc "vệ sinh" => tính KHÔNG HÀNG
                     // - Ngược lại => tính CÓ HÀNG
                     $lyDoCapThem = mb_strtolower(trim((string)($row['ly_do_cap_them'] ?? '')),'UTF-8');
                     $isQuaCau = ($lyDoCapThem !== '' && mb_strpos($lyDoCapThem, 'qua cầu') !== false) || ($lyDoCapThem !== '' && mb_strpos($lyDoCapThem, 'qua cau') !== false);
-                    if ($isQuaCau) {
+                    $isRoDai = ($lyDoCapThem !== '' && (mb_strpos($lyDoCapThem, 'rô đai') !== false || mb_strpos($lyDoCapThem, 'ro dai') !== false));
+                    $isVeSinh = ($lyDoCapThem !== '' && (mb_strpos($lyDoCapThem, 'vệ sinh') !== false || mb_strpos($lyDoCapThem, 've sinh') !== false));
+                    if ($isQuaCau || $isRoDai || $isVeSinh) {
                         $subtotal[7]+=$litInt; // DẦU SD KH
                     } else {
                         $subtotal[8]+=$litInt; // DẦU SD CH
