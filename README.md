@@ -176,6 +176,10 @@ Thư mục `data/` là nơi lưu **dữ liệu vận hành**. Một số file ch
 
 ## 📝 Cập nhật gần đây
 
+- **Fix mất “Địa điểm” khi bấm Tính toán với lệnh Cấp thêm (Ma nơ)**
+  - Trước đây khi chọn loại `bom_nuoc` (Ma nơ), JS handler đã reset/disable input `dia_diem_cap_them` khi trang reload sau bước **Tính Toán** (POST/redirect), làm mất địa điểm đã chọn.
+  - Đã sửa để **không reset/disable** ô Địa điểm, đảm bảo bấm **Lưu Kết Quả** không còn báo thiếu địa điểm.
+
 - **Chuẩn hóa báo cáo cho lệnh “Cấp thêm”**
   - Khi xuất báo cáo, dòng `Cấp thêm` ưu tiên lấy đúng giá trị người dùng nhập ở `so_luong_cap_them_lit` (chỉ fallback sang `dau_tinh_toan_lit` nếu trống/0) để tránh lệch số liệu.
 

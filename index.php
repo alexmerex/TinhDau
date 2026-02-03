@@ -1428,15 +1428,15 @@ include 'includes/header.php';
                                 if (ngayCapRequired) ngayCapRequired.style.display = 'none';
                                 if (ngayCapHint) ngayCapHint.textContent = 'Chọn ngày cấp thêm thực tế (tùy chọn)';
                             } else if (this.value === 'bom_nuoc') {
-                                // Hiện địa điểm, ẩn lý do nhập
-                                diaDiemWrapper.style.display = 'block';
-                                lyDoWrapper.style.display = 'none';
+                                // Dầu ma nơ: CÓ địa điểm (tùy nghiệp vụ), giữ nguyên giá trị người dùng đã chọn
+                                if (diaDiemWrapper) diaDiemWrapper.style.display = 'block';
+                                if (lyDoWrapper) lyDoWrapper.style.display = 'none';
 
-                                // Không yêu cầu địa điểm cho Rô đai+ vệ sinh
+                                // FIX: Không reset value và không disable input địa điểm
                                 if (diaDiemInput) {
-                                    diaDiemInput.value = '';
-                                    diaDiemInput.removeAttribute('required');
-                                    diaDiemInput.disabled = true;
+                                    diaDiemInput.setAttribute('required', 'required');
+                                    diaDiemInput.disabled = false;
+                                    diaDiemInput.removeAttribute('disabled');
                                 }
                                 if (lyDoKhacInput) {
                                     lyDoKhacInput.removeAttribute('required');
