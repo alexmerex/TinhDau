@@ -174,7 +174,7 @@ class KhoangCach {
         $current = $diem;
 
         // Xóa từng cặp ngoặc từ cuối, tạo variant mỗi lần
-        // Xử lý cả ngoặc thường () và fullwidth （）
+        // Xử lý cả ngoặc thường () và fullwidth ()
         while (preg_match('/\s*[（(][^）)]*[）)]\s*$/', $current)) {
             $current = preg_replace('/\s*[（(][^）)]*[）)]\s*$/', '', $current);
             $current = trim($current);

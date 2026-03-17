@@ -4045,7 +4045,7 @@ document.addEventListener('DOMContentLoaded', function(){
       }
 
       // Helper function to parse điểm với lý do: "Tên (lý do)" -> {name: "Tên", reason: "lý do"}
-      // ❌ KHÔNG strip ngoặc nữa vì:
+      // KHÔNG strip ngoặc nữa vì:
       // 1. Ngoặc có thể là phần của tên gốc (như "BMT Cần Thơ (Cái Cui)")
       // 2. Backend đã có variants logic để xử lý so sánh linh hoạt
       // 3. Chỉ strip ngoặc cuối nếu chắc chắn là ghi chú người dùng thêm (nhiều hơn 1 cặp ngoặc)
@@ -4379,13 +4379,13 @@ document.addEventListener('DOMContentLoaded', function(){
   }
 
   // Helper: chuẩn hóa tên điểm trước khi so sánh khoảng cách
-  // - Bỏ phần ghi chú thêm / lý do dạng full-width: " （Lãnh vật tư）", " （Đổi lệnh）", ...
+  // - Bỏ phần ghi chú thêm / lý do dạng full-width: " (Lãnh vật tư)", " (Đổi lệnh)", ...
   // - Bỏ phần ghi chú cuối có chứa "đổi lệnh" hoặc "lãnh vật tư" trong ngoặc tròn chuẩn
   function normalizePointNameForDistance(name) {
     if (!name) return '';
     var cleaned = String(name);
 
-    // 1) Bỏ ghi chú full-width ở cuối: " （...）"
+    // 1) Bỏ ghi chú full-width ở cuối: " (...)"
     cleaned = cleaned.replace(/\s*（[^）]*）\s*$/u, '');
 
     // 2) Bỏ ghi chú cuối cùng trong ngoặc tròn chứa 'đổi lệnh' hoặc 'lãnh vật tư'
