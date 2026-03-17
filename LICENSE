@@ -3,31 +3,40 @@ BẢN QUYỀN VÀ ĐIỀU KHOẢN SỬ DỤNG PHẦN MỀM (NỘI BỘ)
 Copyright (c) 2026
 Đơn vị sở hữu: CÔNG TY CỔ PHẦN LOGISTICS VICEM
 
-1) Phạm vi sử dụng
-Phần mềm này được phát triển phục vụ hoạt động nghiệp vụ nội bộ của đơn vị sở hữu và/hoặc các đơn vị trực thuộc được ủy quyền bằng văn bản.
+1) Mục đích và phạm vi sử dụng
+Phần mềm này được phát triển, triển khai và sử dụng CHỈ phục vụ hoạt động nghiệp vụ nội bộ của đơn vị sở hữu và/hoặc các đơn vị trực thuộc được ủy quyền bằng văn bản hợp lệ. Mọi hình thức sử dụng ngoài phạm vi trên đều bị CẤM tuyệt đối.
 
-2) Quyền bị hạn chế
-Trừ khi có chấp thuận bằng văn bản của đơn vị sở hữu, mọi tổ chức/cá nhân KHÔNG được:
-- Sao chép, phân phối, công bố công khai phần mềm;
-- Chuyển giao, cấp phép lại, cho thuê, thương mại hóa;
-- Chỉnh sửa, tái cấu trúc, trích xuất một phần để tái sử dụng ngoài phạm vi nội bộ;
-- Sử dụng cho mục đích ngoài nhiệm vụ được giao.
+2) Cấm sao chép, phát tán và khai thác ngoài nội bộ
+Không một tổ chức/cá nhân nào (kể cả người dùng nội bộ) được:
+- Sao chép, phân phối, công bố, phát hành, hoặc truyền đưa phần mềm ra bên ngoài dưới bất kỳ hình thức nào;
+- Chuyển giao, cấp phép lại, cho thuê, thương mại hóa, hoặc khai thác vì mục đích lợi nhuận;
+- Chỉnh sửa, tái cấu trúc, dịch ngược, tách mã, trích xuất, hoặc tái sử dụng bất kỳ phần nào;
+- Sử dụng cho mục đích ngoài nhiệm vụ được giao, hoặc trong môi trường/đơn vị không được ủy quyền bằng văn bản.
 
-3) Bảo mật và dữ liệu
-Mã nguồn, cấu hình, tài liệu và dữ liệu phát sinh trong quá trình vận hành được xem là thông tin nội bộ. Việc truy cập, lưu trữ, sao lưu, chia sẻ phải tuân thủ quy chế bảo mật và quy định pháp luật hiện hành.
+3) Quyền sở hữu và kiểm soát
+Mọi quyền sở hữu trí tuệ và quyền kiểm soát đối với phần mềm, mã nguồn, cấu hình, tài liệu, dữ liệu, và các tài sản liên quan thuộc về đơn vị sở hữu. Việc truy cập, lưu trữ, sao lưu, và chia sẻ đều phải tuân thủ quy chế bảo mật nội bộ và pháp luật hiện hành.
 
-4) Trách nhiệm sử dụng
-Người dùng/đơn vị sử dụng phải:
-- Tuân thủ quy trình vận hành và hướng dẫn nghiệp vụ;
-- Bảo đảm an toàn thông tin, không làm lộ dữ liệu;
-- Chịu trách nhiệm trong phạm vi hành vi sử dụng của mình.
+4) Bảo mật và dữ liệu
+Mã nguồn, cấu hình, tài liệu, dữ liệu nghiệp vụ và dữ liệu phát sinh được xem là thông tin mật/nội bộ. Người dùng phải bảo đảm an toàn thông tin, không làm lộ dữ liệu dưới mọi hình thức. Mọi hành vi làm lộ hoặc sử dụng sai mục đích sẽ bị xử lý theo quy định nội bộ và pháp luật.
 
-5) Tuyên bố miễn trừ
-Phần mềm được cung cấp để phục vụ công tác nghiệp vụ nội bộ. Đơn vị sở hữu có quyền cập nhật, sửa đổi, tạm ngừng hoặc chấm dứt cung cấp theo yêu cầu quản trị, an toàn thông tin hoặc yêu cầu pháp lý.
+5) Trách nhiệm sử dụng
+Người dùng/đơn vị sử dụng có trách nhiệm:
+- Tuân thủ quy trình vận hành, hướng dẫn nghiệp vụ và chính sách an toàn thông tin;
+- Chịu trách nhiệm trước đơn vị sở hữu đối với mọi hành vi sử dụng của mình;
+- Hợp tác trong việc kiểm tra, kiểm soát và khắc phục vi phạm.
 
-6) Hiệu lực
+6) Biện pháp xử lý vi phạm
+Mọi hành vi vi phạm các điều khoản này có thể dẫn đến:
+- Thu hồi quyền truy cập, dừng cung cấp phần mềm;
+- Xử lý kỷ luật nội bộ và/hoặc truy cứu trách nhiệm theo quy định pháp luật;
+- Yêu cầu bồi thường thiệt hại (nếu có).
+
+7) Miễn trừ và quyền thay đổi
+Phần mềm được cung cấp nhằm phục vụ công tác nghiệp vụ nội bộ. Đơn vị sở hữu có quyền cập nhật, sửa đổi, tạm ngừng hoặc chấm dứt cung cấp phần mềm theo yêu cầu quản trị, an toàn thông tin hoặc yêu cầu pháp lý, mà không phát sinh nghĩa vụ bồi thường.
+
+8) Hiệu lực
 Điều khoản này có hiệu lực kể từ ngày ban hành và có thể được cập nhật theo quyết định của đơn vị sở hữu.
 
 ---
 Ghi chú:
-- Nếu cần phát hành cho đối tác ngoài đơn vị, nên ban hành phụ lục cấp phép riêng bằng văn bản.
+- Nếu cần cung cấp cho đối tác/đơn vị ngoài hệ thống, bắt buộc phải có phụ lục cấp phép riêng bằng văn bản và được phê duyệt theo thẩm quyền.
