@@ -738,12 +738,13 @@ include 'includes/header.php';
                                 </label>
                                 <select class="form-select" id="thang_bao_cao" name="thang_bao_cao">
                                     <?php
-                                    // Hiển thị 12 tháng trước đến 2 tháng tới (tổng 15 tháng)
+                                    // Dùng ngày 1 của tháng hiện tại làm mốc để tránh lỗi tràn ngày
+                                    // (VD: ngày 31/03 - 1 tháng = 31/02 -> tràn sang 03/03, gây trùng tháng)
+                                    $firstOfMonth = strtotime(date('Y-m-01'));
                                     for ($i = -11; $i <= 2; $i++) {
-                                        $time = strtotime("$i month");
+                                        $time = strtotime("$i month", $firstOfMonth);
                                         $value = date('Y-m', $time);
                                         $text = 'Tháng ' . date('m/Y', $time);
-                                        // Chọn theo formData nếu có, mặc định tháng hiện tại
                                         $selected = (!empty($formData['thang_bao_cao']) ? ($formData['thang_bao_cao'] === $value) : (date('Y-m') === $value)) ? 'selected' : '';
                                         echo "<option value='{$value}' {$selected}>{$text}</option>";
                                     }
