@@ -134,7 +134,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $reason = $candidateReason;
                     }
                 }
-                // Xử lý ngoặc full-width （）
+                // Xử lý ngoặc full-width ()
                 if (preg_match('/^(.*)（([^（）]*)）\s*$/u', $point, $matchesFull)) {
                     $candidatePoint = trim($matchesFull[1]);
                     $candidateReason = trim($matchesFull[2]);
