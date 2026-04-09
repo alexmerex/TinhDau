@@ -17,7 +17,7 @@ if (!defined('TAU_PHAN_LOAI_FILE')) {
 
 // Thông tin hệ thống
 define('SITE_NAME', 'Hệ Thống Tính Toán Nhiên Liệu Tàu');
-define('VERSION', '1.3.8');
+define('VERSION', '1.4.0');
 
 // Cấu hình phân trang
 define('ITEMS_PER_PAGE', 10);

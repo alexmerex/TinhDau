@@ -1,4 +1,4 @@
-# TINHDAU v1.3.8
+# TINHDAU v1.4.0
 
 Hệ thống **tính định mức nhiên liệu**, **quản lý chuyến tàu**, **theo dõi dầu tồn** và **xuất báo cáo** phục vụ công tác vận hành nội bộ — Công ty Cổ phần Logistics VICEM.
 
@@ -16,7 +16,8 @@ Hệ thống **tính định mức nhiên liệu**, **quản lý chuyến tàu**
 8. [API Endpoints](#8-api-endpoints)
 9. [Quy trình nghiệp vụ](#9-quy-trình-nghiệp-vụ)
 10. [Lưu ý quan trọng](#10-lưu-ý-quan-trọng)
-11. [Bản quyền](#11-bản-quyền)
+11. [Lịch sử thay đổi](#11-lịch-sử-thay-đổi)
+12. [Bản quyền](#12-bản-quyền)
 
 ---
 
@@ -135,6 +136,9 @@ tinh-dau-2/
 │   └── ux-enhancements.css    # CSS bổ sung
 │
 ├── data/                      # Dữ liệu CSV/JSON runtime
+│   ├── *.sample.csv           # Template CSV mẫu (tracked)
+│   ├── *.sample.json          # Template JSON mẫu (tracked)
+│   └── (*.csv, *.json, *.log) # Dữ liệu vận hành — gitignored
 ├── docs/
 │   └── API.md                 # Tài liệu API chi tiết
 ├── template_header/           # Template header Excel (.xlsx)
@@ -186,6 +190,8 @@ chmod -R 775 data/
 - Nhập tuyến đường (điểm đi/đến), khối lượng, ngày đi/đến/dỡ xong.
 - Xử lý **đổi lệnh** (nhiều điểm trung gian khi phát sinh).
 - Nhập **cấp thêm dầu** (bơm nước, ma nơ, qua cầu, rô đai + vệ sinh).
+- **Nhiều lệnh Ma nơ trong 1 chuyến**: thêm/xóa động các lệnh cấp thêm bổ sung tại nhiều địa điểm khác nhau, lưu cùng mã chuyến.
+- **Gợi ý chọn nhanh địa điểm Ma nơ** khi chuyến đã có từ 2 địa điểm Ma nơ trở lên.
 - Tính toán → xem kết quả → lưu kết quả.
 - Xem/quản lý các đoạn trong chuyến hiện tại.
 
@@ -328,7 +334,37 @@ Tất cả endpoint trả JSON theo chuẩn `{ "success": true/false, "data": ..
 
 ---
 
-## 11. Bản quyền
+## 11. Lịch sử thay đổi
+
+### v1.4.0 (2026-04-09)
+
+**Tính năng mới:**
+- **Nhiều lệnh Ma nơ trong 1 chuyến** — cho phép thêm/xóa động nhiều lệnh cấp thêm dầu (ma nơ, qua cầu, rô đai + vệ sinh, khác) tại nhiều địa điểm khác nhau trong cùng mã chuyến.
+- **Gợi ý chọn nhanh địa điểm Ma nơ** — khi chuyến hiện tại đã có từ 2 địa điểm Ma nơ trở lên, hiển thị nút chọn nhanh để nhập nhanh hơn.
+- **Validation nâng cao** — kiểm tra tính hợp lệ của tất cả lệnh Ma nơ bổ sung trước khi lưu (địa điểm không rỗng, số lượng > 0).
+
+**Dọn dẹp dự án:**
+- Xóa script demo (`generate_diem_csv_demo.php`) và file output demo (`data/diem_generated.csv`).
+- Untrack dữ liệu runtime JSON (`order_overrides.json`, `transfer_overrides.json`) — thêm file sample thay thế.
+- Xóa file log debug/vận hành và PHPUnit cache.
+- Cập nhật `.gitignore`: bảo vệ `*.sample.json` tương tự `*.sample.csv`.
+- Xóa file CSV trùng lặp/backup (`dau_ton_2.csv`, `ket_qua_tinh_toan_2.csv`).
+
+### v1.3.8 (2026-04)
+
+- Cập nhật README toàn diện với cấu trúc thư mục, API docs, quy trình nghiệp vụ.
+- Fix dropdown tháng báo cáo bị trùng lặp.
+
+### v1.3.x
+
+- Hỗ trợ rô đai + vệ sinh trong cấp thêm dầu.
+- Chuẩn hóa báo cáo cấp thêm và rule dầu ma nơ.
+- Giữ lại địa điểm cấp thêm sau khi tính toán.
+- Quản lý template header Excel theo loại báo cáo.
+
+---
+
+## 12. Bản quyền
 
 Phần mềm thuộc sở hữu của **Công ty Cổ phần Logistics VICEM** (Copyright 2026).
 
