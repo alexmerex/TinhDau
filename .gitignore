@@ -46,6 +46,7 @@ backup/
 data/*.csv
 !data/*.sample.csv
 data/*.json
+!data/*.sample.json
 data/*.log
 /*.csv
 # Some logs may be stored outside data/
