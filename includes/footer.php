@@ -435,6 +435,63 @@
                     if (wrap) wrap.innerHTML = '';
                 }
             } catch(_){ }
+            try { renderMaNoQuickSelect([]); } catch(_) {}
+        }
+
+        // Gợi ý chọn nhanh địa điểm Ma nơ khi 1 chuyến có nhiều lệnh Ma nơ
+        function parseMaNoLocationFromReason(reason) {
+            const text = String(reason || '').trim();
+            if (!text) return '';
+            // Ví dụ: "Dầu ma nơ tại bến Cảng X 01 chuyến x 32 lít"
+            const m = text.match(/dầu\s*ma\s*n(?:ơ|o)\s*tại\s*bến\s*(.+?)\s*01\s*chuyến/iu);
+            return m && m[1] ? m[1].trim() : '';
+        }
+
+        function renderMaNoQuickSelect(capThemList) {
+            const wrap = document.getElementById('mano_quick_select_wrap');
+            const list = document.getElementById('mano_quick_select_list');
+            const diaDiemInput = document.getElementById('dia_diem_cap_them');
+            if (!wrap || !list || !diaDiemInput) return;
+
+            const items = Array.isArray(capThemList) ? capThemList : [];
+            const locations = [];
+            const seen = new Set();
+
+            items.forEach(item => {
+                const reason = String(item && item.ly_do_cap_them ? item.ly_do_cap_them : '');
+                const isMaNo = /dầu\s*ma\s*n(?:ơ|o)\s*tại\s*bến/iu.test(reason);
+                if (!isMaNo) return;
+                const loc = parseMaNoLocationFromReason(reason);
+                if (!loc) return;
+                const key = loc.toLowerCase();
+                if (seen.has(key)) return;
+                seen.add(key);
+                locations.push(loc);
+            });
+
+            // Chỉ hiện khi có từ 2 địa điểm Ma nơ trở lên trong cùng chuyến
+            if (locations.length < 2) {
+                wrap.style.display = 'none';
+                list.innerHTML = '';
+                return;
+            }
+
+            list.innerHTML = '';
+            locations.forEach(loc => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'btn btn-outline-primary btn-sm mano-quick-btn';
+                btn.textContent = loc;
+                btn.dataset.location = loc;
+                btn.addEventListener('click', function(){
+                    const location = this.dataset.location || '';
+                    diaDiemInput.value = location;
+                    diaDiemInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    diaDiemInput.dispatchEvent(new Event('change', { bubbles: true }));
+                });
+                list.appendChild(btn);
+            });
+            wrap.style.display = 'block';
         }
 
         // Function để xử lý thay đổi tàu - CẬP NHẬT CHO DROPDOWN MÃ CHUYẾN
@@ -933,6 +990,10 @@
             if (!wrap) return;
             const hasSegments = Array.isArray(data?.segments) && data.segments.length>0;
             const hasCaps = Array.isArray(data?.cap_them) && data.cap_them.length>0;
+
+            // Cập nhật nút chọn nhanh Ma nơ theo dữ liệu chuyến hiện tại
+            try { renderMaNoQuickSelect(data?.cap_them || []); } catch(_) {}
+
             if (!hasSegments && !hasCaps) {
                 // Nếu đã có khung bảng tĩnh trên server, chỉ cần thay nội dung tbody
                     const tbody = document.getElementById('trip_table_body');
@@ -1189,6 +1250,28 @@
                 if (soLuongCapThem === '' || isNaN(soLuongCapThem) || parseFloat(soLuongCapThem) <= 0) {
                     showAlert('Vui lòng nhập số lượng tiêu hao hợp lệ (> 0)', 'warning');
                     return false;
+                }
+
+                // Validate thêm cho nhiều lệnh Ma nơ trong 1 lần lưu
+                if (loaiCapThem === 'bom_nuoc') {
+                    const extraDiaDiemEls = Array.from(document.querySelectorAll('input[name="mano_extra_dia_diem[]"]'));
+                    const extraSoLuongEls = Array.from(document.querySelectorAll('input[name="mano_extra_so_luong[]"]'));
+                    const maxLen = Math.max(extraDiaDiemEls.length, extraSoLuongEls.length);
+                    for (let i = 0; i < maxLen; i++) {
+                        const dd = (extraDiaDiemEls[i]?.value || '').trim();
+                        const slText = (extraSoLuongEls[i]?.value || '').trim();
+                        const hasAny = dd !== '' || slText !== '';
+                        if (!hasAny) continue;
+                        const sl = parseFloat(slText);
+                        if (dd === '') {
+                            showAlert('Vui lòng nhập địa điểm cho lệnh Ma nơ bổ sung #' + (i + 1), 'warning');
+                            return false;
+                        }
+                        if (!slText || isNaN(sl) || sl <= 0) {
+                            showAlert('Vui lòng nhập số lượng hợp lệ cho lệnh Ma nơ bổ sung #' + (i + 1), 'warning');
+                            return false;
+                        }
+                    }
                 }
             }
             

@@ -203,6 +203,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $lyDoCapThem .= " x " . number_format($soLuongCapThem, 0) . " lít";
             }
         }
+        // Xây dựng danh sách lệnh cấp thêm
+        $danhSachLenhCapThem = [];
+        if ($capThem && $soLuongCapThem > 0 && !empty($lyDoCapThem)) {
+            $danhSachLenhCapThem[] = ['loai' => $loaiCapThem, 'dia_diem' => $diaDiemCapThem, 'ly_do' => $lyDoCapThem, 'so_luong' => $soLuongCapThem];
+        }
+        if ($capThem) {
+            $_eDDs = $_POST['mano_extra_dia_diem'] ?? []; $_eSLs = $_POST['mano_extra_so_luong'] ?? [];
+            $_eLoais = $_POST['mano_extra_loai'] ?? []; $_eLyDos = $_POST['mano_extra_lydo_khac'] ?? [];
+            if (!is_array($_eDDs)) $_eDDs = []; if (!is_array($_eSLs)) $_eSLs = [];
+            if (!is_array($_eLoais)) $_eLoais = []; if (!is_array($_eLyDos)) $_eLyDos = [];
+            for ($_ei = 0; $_ei < max(count($_eDDs), count($_eSLs)); $_ei++) {
+                $_edd = trim((string)($_eDDs[$_ei] ?? '')); $_esl = floatval($_eSLs[$_ei] ?? 0);
+                if ($_esl <= 0) continue;
+                $_eLoai = trim((string)($_eLoais[$_ei] ?? 'bom_nuoc'));
+                $_eLyDoK = trim((string)($_eLyDos[$_ei] ?? ''));
+                if ($_eLoai === 'qua_cau') { $_eLyDo = "Dầu bơm nước qua cầu " . $_edd . " 01 chuyến x " . number_format($_esl, 0) . " lít"; }
+                elseif ($_eLoai === 'ro_dai_ve_sinh') { $_eLyDo = "Dầu rô đai+ vệ sinh 01 máy chính x " . number_format($_esl, 0) . " lít"; }
+                elseif ($_eLoai === 'khac') { $_eLyDo = ($_eLyDoK ?: 'Cấp thêm khác') . " x " . number_format($_esl, 0) . " lít"; }
+                else { $_eLyDo = "Dầu ma nơ tại bến " . $_edd . " 01 chuyến x " . number_format($_esl, 0) . " lít"; }
+                $danhSachLenhCapThem[] = ['loai' => $_eLoai, 'dia_diem' => $_edd, 'ly_do' => $_eLyDo, 'so_luong' => $_esl];
+            }
+        }
+
         $ghiChu = trim($_POST['ghi_chu'] ?? '');
 
         // Logic xác định mã chuyến được làm rõ
@@ -258,7 +281,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'ly_do_cap_them_khac' => $lyDoCapThemKhac,
             'so_luong_cap_them' => ($soLuongCapThem === 0.0 ? '' : (string)$soLuongCapThem),  // FIX: Dùng '' thay vì '0' để tránh vi phạm min="0.01"
             'ghi_chu' => $ghiChu
+        ,
+            'mano_extra' => []
         ];
+        if ($capThem) {
+            $_mef = []; $_meDD = $_POST['mano_extra_dia_diem'] ?? []; $_meSL = $_POST['mano_extra_so_luong'] ?? []; $_meL = $_POST['mano_extra_loai'] ?? [];
+            if (!is_array($_meDD)) $_meDD = []; if (!is_array($_meSL)) $_meSL = []; if (!is_array($_meL)) $_meL = [];
+            for ($_mi = 0; $_mi < max(count($_meDD), count($_meSL)); $_mi++) {
+                $_md = trim((string)($_meDD[$_mi] ?? '')); $_ms = trim((string)($_meSL[$_mi] ?? '')); $_ml = trim((string)($_meL[$_mi] ?? 'bom_nuoc'));
+                if ($_md !== '' || $_ms !== '') $_mef[] = ['dia_diem' => $_md, 'so_luong' => $_ms, 'loai' => $_ml];
+            }
+            $formData['mano_extra'] = $_mef;
+        }
+
 
         // Thực hiện tính toán
         // Biến lưu kết quả cấp thêm (nếu có)
@@ -332,9 +367,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // Xử lý cấp thêm (nếu có)
-        if ($capThem && $soLuongCapThem > 0) {
+        if ($capThem && !empty($danhSachLenhCapThem)) {
+            $tongSoLuongCapThem = array_sum(array_map(function($it){ return (float)($it['so_luong'] ?? 0); }, $danhSachLenhCapThem));
+            $lyDoTongHop = implode(' | ', array_map(function($it){ return (string)($it['ly_do'] ?? ''); }, $danhSachLenhCapThem));
+            $soLuongCapThem = $tongSoLuongCapThem;
             $ketQuaCapThem = [
-                'nhien_lieu_lit' => $soLuongCapThem,
+                'nhien_lieu_lit' => $tongSoLuongCapThem,
                 'loai_tinh' => 'cap_them',
                 'thong_tin' => [
                     'ten_tau' => $tenTau,
@@ -350,7 +388,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'chi_tiet' => [
                     'sch' => 0,
                     'skh' => 0,
-                    'cong_thuc' => $lyDoCapThem
+                    'cong_thuc' => $lyDoTongHop
                 ]
             ];
 
@@ -472,6 +510,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         file_put_contents('debug_log.txt', "[POST] Processing action: {$action}.\n", FILE_APPEND);
+        // Xây dựng bản ghi cấp thêm riêng biệt
+        $dataLuuCapThemList = [];
+        if (isset($ketQuaCapThem) && $ketQuaCapThem && !empty($danhSachLenhCapThem)) {
+            foreach ($danhSachLenhCapThem as $_lct) {
+                $_sl = (float)($_lct['so_luong'] ?? 0); if ($_sl <= 0) continue;
+                $_lr = (string)($_lct['ly_do'] ?? '');
+                $dataLuuCapThemList[] = array_merge($dataChung, [
+                    'diem_di'=>'', 'diem_den'=>'', 'cu_ly_co_hang_km'=>0, 'cu_ly_khong_hang_km'=>0,
+                    'he_so_co_hang'=>0, 'he_so_khong_hang'=>0, 'khoi_luong_van_chuyen_t'=>0, 'khoi_luong_luan_chuyen'=>0,
+                    'dau_tinh_toan_lit'=>$_sl, 'cap_them'=>1, 'doi_lenh'=>0, 'diem_du_kien'=>'',
+                    'ly_do_cap_them'=>$_lr, 'so_luong_cap_them_lit'=>$_sl, 'cay_xang_cap_them'=>'',
+                    'nhom_cu_ly'=>'', 'doi_lenh_tuyen'=>'', 'route_hien_thi'=>'',
+                ]);
+            }
+        }
+        if (!$dataLuuTinhToan && !empty($dataLuuCapThemList)) {
+            $dataLuuTinhToan = array_shift($dataLuuCapThemList);
+        }
+
         if ($action === 'save') {
             // Debug dữ liệu ngay trước khi lưu
             error_log('DEBUG SAVE ACTION: $ketQua exists: ' . ($ketQua ? 'YES' : 'NO'));
@@ -508,11 +565,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // Lưu kết quả cấp thêm (nếu có và khác với tính toán dầu)
             if ($saved && $dataLuuCapThem) {
-                $savedCapThem = $luuKetQua->luu($dataLuuCapThem);
+                /* OLD single save disabled - using dataLuuCapThemList */ $savedCapThem = true;
                 if (!$savedCapThem) {
                     error_log('DEBUG SAVE ACTION: luu() returned false for cap them.');
                 } else {
                     error_log('DEBUG SAVE ACTION: luu() returned true for cap them.');
+                }
+            }
+
+            // Lưu bản ghi cấp thêm bổ sung
+            if ($saved && !empty($dataLuuCapThemList)) {
+                foreach ($dataLuuCapThemList as $_dctItem) {
+                    $luuKetQua->luu($_dctItem);
                 }
             }
 
@@ -538,7 +602,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['calc'] = [
                 'form' => $formData,
                 'ketQua' => $ketQua,
-                'ketQuaCapThem' => $ketQuaCapThem ?? null
+                'ketQuaCapThem' => $ketQuaCapThem ?? null,
+                'danhSachLenhCapThem' => $danhSachLenhCapThem ?? []
             ];
             header('Location: index.php?show=1');
             exit;
@@ -553,6 +618,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['show']) && isset($_SESSION['calc'])) {
     $ketQua = $_SESSION['calc']['ketQua'] ?? null;
     $ketQuaCapThem = $_SESSION['calc']['ketQuaCapThem'] ?? null;
+    $danhSachLenhCapThem = $_SESSION['calc']['danhSachLenhCapThem'] ?? [];
     $formData = $_SESSION['calc']['form'] ?? $formData;
 
 }
@@ -1275,6 +1341,18 @@ include 'includes/header.php';
                             <label for="so_luong_cap_them" class="form-label">Số lượng (Lít) <span class="text-danger">*</span></label>
                             <input type="number" class="form-control" id="so_luong_cap_them" name="so_luong_cap_them" value="<?php echo htmlspecialchars($formData['so_luong_cap_them']); ?>" min="0.01" step="0.01" autocomplete="off">
                         </div>
+                        <!-- Nút thêm lệnh cấp thêm -->
+                        <div class="mb-3" id="mano_add_btn_wrapper" style="<?php echo (($formData['loai_cap_them'] ?? 'bom_nuoc') === 'bom_nuoc') ? '' : 'display:none;'; ?>">
+                            <button type="button" class="btn btn-outline-primary w-100" id="btn_add_mano" onclick="addManoExtraOrder()">
+                                <i class="fas fa-plus-circle me-1"></i>Thêm lệnh cấp thêm (ở đầu còn lại)
+                            </button>
+                            <div class="form-text text-center"><i class="fas fa-info-circle me-1"></i>Bấm để thêm lệnh cấp dầu ở đầu khác (điểm đi hoặc đến), lưu cùng mã chuyến.</div>
+                        </div>
+                        <div class="mb-3" id="mano_extra_orders_wrapper" style="display:none;">
+                            <label class="form-label mb-2"><i class="fas fa-list-ol me-1"></i>Lệnh cấp thêm bổ sung</label>
+                            <div id="mano_extra_orders_list" class="d-flex flex-column gap-2"></div>
+                        </div>
+                        <script>(function(){var d=false;function go(){if(d)return;d=true;try{var data=<?php echo json_encode($formData['mano_extra'] ?? [], JSON_UNESCAPED_UNICODE); ?>;if(Array.isArray(data)&&data.length>0){data.forEach(function(it){if(typeof window.addManoExtraOrder==="function")window.addManoExtraOrder(it);});}}catch(e){}}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",go);else setTimeout(go,150);})();</script>
                         <!-- Ô preview (luôn hiển thị, readonly) -->
                         <div class="mb-3">
                             <label for="ly_do_cap_them_display" class="form-label" id="ly_do_cap_them_label">Lý do tiêu hao (tự động tạo)</label>
@@ -1297,13 +1375,12 @@ include 'includes/header.php';
                         <div class="alert alert-success" id="cap_them_preview">
                             <i class="fas fa-eye me-2"></i>
                             <strong>Kết quả sẽ lưu:</strong><br>
-                            <div class="mt-2">
-                                <strong>Lý do (sẽ lưu vào hệ thống):</strong><br>
-                                <span id="cap_them_result_text" class="fw-bold">Dầu ma nơ tại bến [Địa điểm] 01 chuyến x [Số lượng] lít</span>
+                            <div id="cap_them_result_text" class="mt-2">
+                                <div class="fw-bold">Dầu ma nơ tại bến [Địa điểm] 01 chuyến</div>
                             </div>
                             <div class="mt-2 small text-muted">
                                 <i class="fas fa-info-circle me-1"></i>
-                                Trong báo cáo Excel sẽ hiển thị: <strong>CẤP THÊM: [Lý do trên]</strong>
+                                Trong báo cáo Excel mỗi lệnh sẽ hiển thị: <strong>CẤP THÊM: [Lý do]</strong>
                             </div>
                         </div>
                         </div><!-- end card-body -->
@@ -1780,6 +1857,35 @@ include 'includes/header.php';
                             }
                         }, 300);
                     });
+
+                    function addManoExtraOrder(prefill) {
+                        var list = document.getElementById("mano_extra_orders_list");
+                        var wrap = document.getElementById("mano_extra_orders_wrapper");
+                        if (!list) return;
+                        if (wrap) wrap.style.display = "block";
+                        var idx = list.querySelectorAll(".mano-extra-item").length + 2;
+                        var vDD = prefill && prefill.dia_diem ? String(prefill.dia_diem) : "";
+                        var vSL = prefill && prefill.so_luong ? String(prefill.so_luong) : "";
+                        var vL = prefill && prefill.loai ? String(prefill.loai) : "bom_nuoc";
+                        var row = document.createElement("div");
+                        row.className = "mano-extra-item border rounded p-2 mb-2";
+                        row.innerHTML = '<div class="d-flex justify-content-between align-items-center mb-2"><small class="text-muted fw-bold"><i class="fas fa-gas-pump me-1"></i>Lệnh cấp thêm '+idx+'</small><button type="button" class="btn btn-outline-danger btn-sm" onclick="removeManoExtraOrder(this)"><i class="fas fa-trash-alt"></i> Xóa</button></div><div class="row g-2 mb-2"><div class="col-12"><div class="d-flex flex-wrap gap-2"><label class="form-check form-check-inline mb-0"><input class="form-check-input extra-loai" type="radio" name="mano_extra_loai_'+idx+'[]" value="bom_nuoc"'+(vL==="bom_nuoc"?" checked":"")+' onchange="onExtraLoaiChange(this)"><span class="form-check-label">Ma nơ</span></label><label class="form-check form-check-inline mb-0"><input class="form-check-input extra-loai" type="radio" name="mano_extra_loai_'+idx+'[]" value="qua_cau"'+(vL==="qua_cau"?" checked":"")+' onchange="onExtraLoaiChange(this)"><span class="form-check-label">Qua cầu</span></label><label class="form-check form-check-inline mb-0"><input class="form-check-input extra-loai" type="radio" name="mano_extra_loai_'+idx+'[]" value="ro_dai_ve_sinh"'+(vL==="ro_dai_ve_sinh"?" checked":"")+' onchange="onExtraLoaiChange(this)"><span class="form-check-label">Rô đai+ vệ sinh</span></label><label class="form-check form-check-inline mb-0"><input class="form-check-input extra-loai" type="radio" name="mano_extra_loai_'+idx+'[]" value="khac"'+(vL==="khac"?" checked":"")+' onchange="onExtraLoaiChange(this)"><span class="form-check-label">Khác</span></label></div></div></div><div class="row g-2"><div class="col-md-5 extra-dd-wrap"><input type="text" class="form-control diem-input" name="mano_extra_dia_diem[]" placeholder="Địa điểm..." autocomplete="off" onfocus="showAllDiem(this.nextElementSibling,\'\')" oninput="searchDiem(this,this.nextElementSibling)"><div class="dropdown-menu diem-results" style="width:100%;max-height:200px;overflow-y:auto"></div></div><div class="col-md-3"><input type="number" class="form-control" name="mano_extra_so_luong[]" min="0.01" step="0.01" placeholder="Số lít..." autocomplete="off"></div><input type="hidden" name="mano_extra_loai[]" class="extra-loai-hidden" value="'+vL+'"><div class="col-md-2"><button type="button" class="btn btn-outline-secondary btn-sm w-100" onclick="resetManoExtraDiem(this)"><i class="fas fa-undo"></i> Chọn lại</button></div><div class="col-md-2 extra-lydo-wrap" style="display:none"><input type="text" class="form-control" name="mano_extra_lydo_khac[]" placeholder="Lý do..."></div></div>';
+                        list.appendChild(row);
+                        if(vDD){var dd=row.querySelector('input[name="mano_extra_dia_diem[]"]');if(dd)dd.value=vDD;}
+                        if(vSL){var sl=row.querySelector('input[name="mano_extra_so_luong[]"]');if(sl)sl.value=vSL;}
+                        onExtraLoaiChange(row.querySelector("input.extra-loai:checked"));
+                        if(typeof updateCapThemPreview==="function") updateCapThemPreview();
+                    }
+                    function onExtraLoaiChange(radio){if(!radio)return;var row=radio.closest(".mano-extra-item");if(!row)return;var h=row.querySelector(".extra-loai-hidden");if(h)h.value=radio.value;var ddW=row.querySelector(".extra-dd-wrap");var lyW=row.querySelector(".extra-lydo-wrap");if(radio.value==="ro_dai_ve_sinh"){if(ddW)ddW.style.display="none";if(lyW)lyW.style.display="none";}else if(radio.value==="khac"){if(ddW)ddW.style.display="none";if(lyW)lyW.style.display="";}else{if(ddW)ddW.style.display="";if(lyW)lyW.style.display="none";}if(typeof updateCapThemPreview==="function")updateCapThemPreview();}
+                    function removeManoExtraOrder(btn){var row=btn.closest(".mano-extra-item");if(row)row.remove();var list=document.getElementById("mano_extra_orders_list");var wrap=document.getElementById("mano_extra_orders_wrapper");if(wrap&&list&&list.querySelectorAll(".mano-extra-item").length===0)wrap.style.display="none";if(typeof updateCapThemPreview==="function")updateCapThemPreview();}
+                    function resetManoExtraDiem(btn){var row=btn.closest(".mano-extra-item");if(!row)return;var inp=row.querySelector('input[name="mano_extra_dia_diem[]"]');if(inp){inp.value="";inp.readOnly=false;inp.focus();}}
+                    window.addManoExtraOrder=addManoExtraOrder;
+                    window.removeManoExtraOrder=removeManoExtraOrder;
+                    window.onExtraLoaiChange=onExtraLoaiChange;
+                    window.resetManoExtraDiem=resetManoExtraDiem;
+                    document.addEventListener("change",function(e){if(e.target&&e.target.classList.contains("extra-loai")&&typeof updateCapThemPreview==="function")updateCapThemPreview();});
+                    var _mel=document.getElementById("mano_extra_orders_list");if(_mel){_mel.addEventListener("input",function(){if(typeof updateCapThemPreview==="function")updateCapThemPreview();});}
+
                     </script>
 
                     <!-- Actions -->
@@ -1853,10 +1959,14 @@ include 'includes/header.php';
                 <!-- Thông báo khi có cả hai kết quả -->
                 <div class="alert alert-info mb-3">
                     <i class="fas fa-info-circle me-2"></i>
-                    <strong>Lưu ý:</strong> Khi lưu, hệ thống sẽ lưu <strong>2 bản ghi riêng biệt</strong>:
+                    <strong><?php $_nb = 1 + (!empty($danhSachLenhCapThem) ? count($danhSachLenhCapThem) : 1); echo $_nb; ?> bản ghi riêng biệt</strong>:
                     <ul class="mb-0 mt-2">
                         <li><strong>Bản ghi 1:</strong> Tính toán dầu cho quảng đường (<strong><?php echo number_format($ketQua['nhien_lieu_lit'], 0); ?> lít</strong>)</li>
-                        <li><strong>Bản ghi 2:</strong> Cấp thêm dầu (<strong><?php echo number_format($ketQuaCapThem['nhien_lieu_lit'], 0); ?> lít</strong> - <?php echo htmlspecialchars($ketQuaCapThem['chi_tiet']['cong_thuc'] ?? ''); ?>)</li>
+                        <?php if (!empty($danhSachLenhCapThem)): foreach ($danhSachLenhCapThem as $_ci => $_ct): ?>
+                        <li><strong>Bản ghi <?php echo $_ci+2; ?>:</strong> <?php echo htmlspecialchars($_ct['ly_do'] ?? ''); ?></li>
+                        <?php endforeach; else: ?>
+                        <li><strong>Bản ghi 2:</strong> Cấp thêm dầu (<strong><?php echo number_format($ketQuaCapThem['nhien_lieu_lit'], 0); ?> lít</strong>)</li>
+                        <?php endif; ?>
                     </ul>
                 </div>
                 <?php endif; ?>
