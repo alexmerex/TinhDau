@@ -1,402 +1,427 @@
-# TINHDAU v1.4.1
+<p align="center">
+  <img src="assets/logo.png" alt="TINHDAU" width="120">
+</p>
 
-Hệ thống **tính định mức nhiên liệu**, **quản lý chuyến tàu**, **theo dõi dầu tồn** và **xuất báo cáo** phục vụ công tác vận hành nội bộ — Công ty Cổ phần Logistics VICEM.
+<h1 align="center">TINHDAU v1.4.1</h1>
+
+<p align="center">
+  Hệ thống tính định mức nhiên liệu, quản lý chuyến tàu, theo dõi dầu tồn và xuất báo cáo Excel cho vận hành nội bộ VICEM Logistics.
+</p>
+
+<p align="center">
+  <img alt="Version" src="https://img.shields.io/badge/version-1.4.1-0F766E?style=for-the-badge">
+  <img alt="PHP" src="https://img.shields.io/badge/PHP-%3E%3D7.4-777BB4?style=for-the-badge&logo=php&logoColor=white">
+  <img alt="Storage" src="https://img.shields.io/badge/storage-CSV%20%2B%20JSON-2563EB?style=for-the-badge">
+  <img alt="Auth" src="https://img.shields.io/badge/auth-session%20guards-16A34A?style=for-the-badge">
+  <img alt="Audit" src="https://img.shields.io/badge/composer%20audit-clean-22C55E?style=for-the-badge">
+  <img alt="License" src="https://img.shields.io/badge/license-proprietary-7C3AED?style=for-the-badge">
+</p>
+
+<p align="center">
+  <a href="#tong-quan">Tổng quan</a>
+  &nbsp;&middot;&nbsp;
+  <a href="#khoi-chuc-nang">Khối chức năng</a>
+  &nbsp;&middot;&nbsp;
+  <a href="#cai-dat-nhanh">Cài đặt</a>
+  &nbsp;&middot;&nbsp;
+  <a href="#bao-mat-phan-quyen">Bảo mật</a>
+  &nbsp;&middot;&nbsp;
+  <a href="#api-du-lieu">API & dữ liệu</a>
+  &nbsp;&middot;&nbsp;
+  <a href="#lich-su-thay-doi">Changelog</a>
+</p>
 
 ---
 
-## Mục lục
+<a id="tong-quan"></a>
 
-1. [Tổng quan](#1-tổng-quan)
-2. [Kiến trúc & công nghệ](#2-kiến-trúc--công-nghệ)
-3. [Cấu trúc thư mục](#3-cấu-trúc-thư-mục)
-4. [Cài đặt & triển khai](#4-cài-đặt--triển-khai)
-5. [Các màn hình chính](#5-các-màn-hình-chính)
-6. [Hệ thống phân quyền](#6-hệ-thống-phân-quyền)
-7. [Models & dữ liệu](#7-models--dữ-liệu)
-8. [API Endpoints](#8-api-endpoints)
-9. [Quy trình nghiệp vụ](#9-quy-trình-nghiệp-vụ)
-10. [Lưu ý quan trọng](#10-lưu-ý-quan-trọng)
-11. [Lịch sử thay đổi](#11-lịch-sử-thay-đổi)
-12. [Bản quyền](#12-bản-quyền)
+## Tổng quan
 
----
+TINHDAU là ứng dụng PHP chạy tốt trên XAMPP/Apache, lưu trữ bằng file CSV/JSON thay vì SQL database. Hệ thống tập trung vào các nghiệp vụ nội bộ:
 
-## 1. Tổng quan
-
-TINHDAU giúp đơn vị:
-
-- **Tính nhanh nhiên liệu** theo tuyến đường, hệ số tàu và thông số chuyến.
-- **Quản lý hành trình** — các đoạn trong từng chuyến, sắp xếp và di chuyển đoạn giữa các chuyến.
-- **Xử lý tình huống phát sinh** — đổi lệnh (nhiều điểm), cấp thêm dầu (ma nơ, qua cầu, rô đai + vệ sinh, bơm nước...).
-- **Quản lý dầu tồn** theo tháng, theo tàu, bao gồm điều chuyển giữa các tàu.
-- **Xuất báo cáo Excel** — báo cáo tổng hợp, báo cáo tháng, báo cáo dầu tồn, in tính dầu (có header template tùy chỉnh).
-
----
-
-## 2. Kiến trúc & công nghệ
-
-| Thành phần | Chi tiết |
+| Tính năng | Giá trị vận hành |
 |---|---|
-| **Ngôn ngữ** | PHP >= 7.4 |
-| **Lưu trữ** | File CSV + JSON (không sử dụng SQL database) |
-| **Thư viện PHP** | [PhpSpreadsheet](https://github.com/PHPOffice/PhpSpreadsheet) ^1.29, lock hiện tại 1.30.5 (xuất Excel) |
-| **Frontend** | Bootstrap 5.3, Font Awesome 6, Flatpickr (date picker), Google Fonts Inter |
-| **Xác thực** | PHP Session, guard đăng nhập/admin, API JSON guard |
-| **Web server** | Apache (XAMPP) hoặc tương đương |
-| **Autoload** | Composer PSR-4 (`App\Models\` → `models/`) |
+| Tính nhiên liệu | Tính nhanh theo tàu, tuyến đường, cự ly, hàng hóa và hệ số tàu |
+| Quản lý chuyến | Lưu chuyến, sắp xếp đoạn, chèn/xóa/di chuyển đoạn giữa các chuyến |
+| Xử lý phát sinh | Đổi lệnh, cấp thêm dầu, nhiều lệnh Ma nơ trong một chuyến |
+| Dầu tồn | Theo dõi dầu tồn theo tháng, theo tàu, điều chuyển giữa các tàu |
+| Báo cáo | Xuất Excel tổng hợp, báo cáo tháng, báo cáo dầu tồn, in tính dầu với header template |
+
+> [!IMPORTANT]
+> Đây là phần mềm nội bộ. Runtime data trong `data/*.csv`, `data/*.json`, `data/*.log` được gitignore và cần được sao lưu định kỳ.
 
 ---
 
-## 3. Cấu trúc thư mục
+## Trạng thái hiện tại
 
-```
-tinh-dau-2/
-├── index.php                  # Trang tính toán nhiên liệu (trang chủ)
-├── lich_su.php                # Lịch sử & xuất báo cáo
-├── quan_ly_dau_ton.php        # Quản lý dầu tồn (user)
-├── danh_sach_diem.php         # Danh sách điểm & tuyến đường
-├── danh_sach_tau.php          # Danh sách tàu & hệ số
-│
-├── auth/                      # Xác thực
-│   ├── login.php              # Đăng nhập
-│   ├── logout.php             # Đăng xuất
-│   ├── change_password.php    # Đổi mật khẩu
-│   ├── check_auth.php         # Middleware: yêu cầu đăng nhập
-│   ├── check_admin.php        # Middleware: yêu cầu quyền admin
-│   ├── api_guard.php          # Middleware JSON cho API/AJAX
-│   └── auth_helper.php        # Session helper (isLoggedIn, isAdmin...)
-│
-├── admin/                     # Khu vực quản trị
-│   ├── index.php              # Dashboard thống kê
-│   ├── quan_ly_tau.php        # CRUD tàu & hệ số
-│   ├── quan_ly_tuyen_duong.php# CRUD tuyến đường
-│   ├── quan_ly_loai_hang.php  # CRUD loại hàng
-│   ├── quan_ly_cay_xang.php   # CRUD cây xăng
-│   ├── quan_ly_dau_ton.php    # Quản lý dầu tồn (admin)
-│   ├── bao_cao_dau_ton.php    # Báo cáo dầu tồn + xuất Excel
-│   └── quan_ly_user.php       # Quản lý người dùng (admin-only)
-│
-├── api/                       # REST API (JSON)
-│   ├── get_distance.php       # Lấy khoảng cách 2 điểm
-│   ├── get_tuyen_duong.php    # Danh sách tuyến đường
-│   ├── search_diem.php        # Tìm kiếm điểm
-│   ├── get_ma_chuyen.php      # Lấy mã chuyến theo tàu
-│   ├── get_loai_hang.php      # Danh sách loại hàng
-│   ├── add_loai_hang.php      # Thêm loại hàng mới
-│   ├── preview_calculation.php# Xem trước kết quả tính toán
-│   ├── update_segment.php     # Cập nhật đoạn chuyến
-│   ├── update_thang_bao_cao.php # Cập nhật tháng báo cáo
-│   ├── insert_trip.php        # Thêm chuyến mới
-│   ├── delete_trip.php        # Xóa chuyến
-│   ├── move_segment.php       # Di chuyển đoạn giữa chuyến
-│   ├── reorder_segments.php   # Sắp xếp lại thứ tự đoạn
-│   ├── update_tinh_chinh.php  # Cập nhật tinh chỉnh
-│   ├── delete_dau_ton.php     # Xóa bản ghi dầu tồn
-│   ├── update_cay_xang.php    # Cập nhật cây xăng
-│   ├── save_order_overrides.php # Lưu thứ tự tùy chỉnh
-│   ├── update_transfer.php    # Cập nhật điều chuyển dầu
-│   └── delete_transfer.php    # Xóa điều chuyển dầu
-│
-├── ajax/                      # AJAX helper
-│   ├── get_trips.php          # Danh sách chuyến theo tàu
-│   └── get_trip_details.php   # Chi tiết đoạn của chuyến
-│
-├── models/                    # Business logic
-│   ├── TinhToanNhienLieu.php  # Công thức tính nhiên liệu
-│   ├── LuuKetQua.php          # Đọc/ghi kết quả tính toán
-│   ├── KhoangCach.php         # Khoảng cách giữa các điểm
-│   ├── HeSoTau.php            # Hệ số nhiên liệu theo tàu
-│   ├── TauPhanLoai.php        # Phân loại tàu (công ty/thuê ngoài)
-│   ├── DauTon.php             # Dầu tồn, tiêu thụ, điều chuyển
-│   ├── CayXang.php            # Danh sách cây xăng
-│   ├── LoaiHang.php           # Danh sách loại hàng
-│   ├── User.php               # Người dùng & xác thực
-│   └── Logger.php             # Ghi log hệ thống
-│
-├── includes/                  # Shared components
-│   ├── header.php / footer.php# Layout chung (navbar, scripts)
-│   ├── helpers.php            # Hàm tiện ích (ngày, chuỗi...)
-│   ├── excel_export_full.php  # Xuất Excel đầy đủ (PhpSpreadsheet)
-│   ├── excel_export_wrapper.php
-│   ├── excel_helper.php
-│   ├── excel_xml_helper.php
-│   ├── add_header_to_sheet.php
-│   ├── add_logo_to_excel.php
-│   └── header_template_applier.php
-│
-├── config/
-│   ├── database.php           # Đường dẫn CSV, hằng số hệ thống
-│   ├── debug.php              # Cấu hình debug & logging
-│   └── report_header_registry.php # Mapping header Excel theo loại báo cáo
-│
-├── src/Report/
-│   └── HeaderTemplate.php     # PSR-4: App\Report — resolve header template
-│
-├── assets/
-│   ├── ux-enhancements.js     # Client-side validation & UX
-│   └── ux-enhancements.css    # CSS bổ sung
-│
-├── data/                      # Dữ liệu CSV/JSON runtime
-│   ├── *.sample.csv           # Template CSV mẫu (tracked)
-│   ├── *.sample.json          # Template JSON mẫu (tracked)
-│   └── (*.csv, *.json, *.log) # Dữ liệu vận hành — gitignored
-├── docs/
-│   └── API.md                 # Tài liệu API chi tiết
-├── template_header/           # Template header Excel (.xlsx)
-├── composer.json
-├── LICENSE
-└── vendor/                    # Composer dependencies
+| Hạng mục | Trạng thái |
+|---|---|
+| Phiên bản ứng dụng | `1.4.1` trong `config/database.php` |
+| Lần rà soát gần nhất | `2026-06-12` |
+| PHP runtime | `>= 7.4`, khuyến nghị PHP 8.x |
+| Spreadsheet engine | `phpoffice/phpspreadsheet` lock `1.30.5` |
+| Composer audit | Không có security advisory tại lần kiểm tra gần nhất |
+| Composer metadata | `composer.json` hợp lệ, license `proprietary` |
+| Debug mặc định | `DEBUG_MODE = false`, `LOG_LEVEL = ERROR` |
+| Admin access | Toàn bộ `admin/` yêu cầu role `admin` |
+| API/AJAX access | Yêu cầu session hợp lệ qua `auth/api_guard.php` |
+
+---
+
+## Kiến trúc & công nghệ
+
+| Lớp | Công nghệ / tệp liên quan |
+|---|---|
+| Backend | PHP procedural + model classes trong `models/` |
+| Storage | CSV + JSON trong `data/`, `khoang_duong.csv`, `bang_he_so_tau_cu_ly_full_v2.csv` |
+| Excel | PhpSpreadsheet, XML export helpers, header templates `.xlsx` |
+| Frontend | Bootstrap 5.3, Font Awesome 6, Flatpickr, CSS/JS riêng trong `assets/` |
+| Auth | PHP Session, CSV user store, route guards |
+| Autoload | Composer PSR-4: `App\\Models\\` -> `models/` |
+
+```mermaid
+flowchart LR
+    UI[Web UI] --> Pages[PHP Pages]
+    Pages --> Models[Models]
+    Models --> CSV[(CSV / JSON Runtime Data)]
+    Pages --> API[API / AJAX JSON]
+    API --> Guard[auth/api_guard.php]
+    Guard --> Session[PHP Session]
+    Models --> Excel[Excel Export]
+    Excel --> Templates[template_header/*.xlsx]
+
+    classDef ui fill:#DBEAFE,stroke:#2563EB,color:#1E3A8A;
+    classDef app fill:#ECFDF5,stroke:#059669,color:#064E3B;
+    classDef data fill:#FEF3C7,stroke:#D97706,color:#78350F;
+    classDef sec fill:#FCE7F3,stroke:#DB2777,color:#831843;
+    class UI ui;
+    class Pages,Models,API,Excel app;
+    class CSV,Templates data;
+    class Guard,Session sec;
 ```
 
 ---
 
-## 4. Cài đặt & triển khai
+<a id="khoi-chuc-nang"></a>
+
+## Khối chức năng
+
+| Khu vực | Đường dẫn | Đối tượng |
+|---|---|---|
+| Tính toán nhiên liệu | `index.php` | User, Admin |
+| Lịch sử & xuất báo cáo | `lich_su.php` | User, Admin |
+| Quản lý dầu tồn trang gốc | `quan_ly_dau_ton.php` | User, Admin |
+| Danh sách điểm | `danh_sach_diem.php` | User, Admin |
+| Danh sách tàu | `danh_sach_tau.php` | User, Admin |
+| Dashboard admin | `admin/index.php` | Admin |
+| CRUD tàu / tuyến / hàng / cây xăng | `admin/quan_ly_*.php` | Admin |
+| Báo cáo dầu tồn admin | `admin/bao_cao_dau_ton.php` | Admin |
+| Quản lý người dùng | `admin/quan_ly_user.php` | Admin |
+
+<details>
+<summary><strong>Chi tiết các màn hình chính</strong></summary>
+
+### `index.php`
+
+- Chọn tàu, mã chuyến, tháng báo cáo.
+- Nhập tuyến, khối lượng, ngày đi, ngày đến, ngày dỡ xong.
+- Xử lý đổi lệnh với nhiều điểm trung gian.
+- Nhập cấp thêm dầu: Ma nơ, qua cầu, rô đai + vệ sinh, khác.
+- Hỗ trợ nhiều lệnh Ma nơ trong một chuyến và gợi ý chọn nhanh địa điểm.
+- Tính toán, xem kết quả, lưu kết quả.
+- Quản lý các đoạn trong chuyến hiện tại.
+
+### `lich_su.php`
+
+- Tra cứu dữ liệu đã lưu theo tàu, chuyến, thời gian, loại hàng, loại bản ghi.
+- Sửa bản ghi, sửa tháng báo cáo, quản lý thứ tự hiển thị.
+- Xuất báo cáo Excel tổng hợp, theo tháng, chi tiết, in tính dầu.
+
+### `quan_ly_dau_ton.php`
+
+- Nhập lệnh lấy dầu, tinh chỉnh dầu tồn, điều chuyển dầu giữa các tàu.
+- Xem nhật ký chi tiết và biến động tồn theo tháng.
+- Sửa cây xăng, sửa/xóa lệnh chuyển dầu.
+
+</details>
+
+---
+
+<a id="cai-dat-nhanh"></a>
+
+## Cài đặt nhanh
 
 ### Yêu cầu
 
-- PHP >= 7.4 (khuyến nghị 8.0+)
-- Apache với `mod_rewrite` (XAMPP hoặc tương đương)
-- Composer
+| Thành phần | Yêu cầu |
+|---|---|
+| PHP | `>= 7.4`, khuyến nghị `8.0+` |
+| Web server | Apache/XAMPP hoặc tương đương |
+| Composer | Dùng để cài PhpSpreadsheet và autoload |
+| Quyền ghi | Thư mục `data/` cần có quyền ghi |
 
-### Các bước
+### Lệnh cài đặt
 
 ```bash
-# 1. Clone repository
 git clone <repo-url> /path/to/htdocs/tinh-dau-2
-
-# 2. Cài đặt dependencies
 cd /path/to/htdocs/tinh-dau-2
 composer install
-
-# 3. Đảm bảo thư mục data/ có quyền ghi
 chmod -R 775 data/
-
-# 4. Truy cập qua trình duyệt
-# http://localhost/tinh-dau-2/
 ```
 
-### Cấu hình
+Truy cập ứng dụng:
 
-- **Hệ thống**: `config/database.php` — đường dẫn CSV, tên site, phiên bản, phân trang.
-- **Debug**: `config/debug.php` — bật/tắt debug mode, cấp độ log, xoay log file.
-- **Báo cáo Excel**: `config/report_header_registry.php` — ánh xạ loại báo cáo → file template header.
+```text
+http://localhost/tinh-dau-2/
+```
+
+> [!NOTE]
+> Trên Windows/XAMPP, đặt project trong `htdocs` và đảm bảo PHP CLI/Apache dùng cùng phiên bản extension cần thiết cho PhpSpreadsheet.
 
 ---
 
-## 5. Các màn hình chính
+<a id="bao-mat-phan-quyen"></a>
 
-### 5.1 Trang tính toán (`index.php`) — Trang chủ
+## Bảo mật & phân quyền
 
-- Chọn tàu, mã chuyến, tháng báo cáo.
-- Nhập tuyến đường (điểm đi/đến), khối lượng, ngày đi/đến/dỡ xong.
-- Xử lý **đổi lệnh** (nhiều điểm trung gian khi phát sinh).
-- Nhập **cấp thêm dầu** (bơm nước, ma nơ, qua cầu, rô đai + vệ sinh).
-- **Nhiều lệnh Ma nơ trong 1 chuyến**: thêm/xóa động các lệnh cấp thêm bổ sung tại nhiều địa điểm khác nhau, lưu cùng mã chuyến.
-- **Gợi ý chọn nhanh địa điểm Ma nơ** khi chuyến đã có từ 2 địa điểm Ma nơ trở lên.
-- Tính toán → xem kết quả → lưu kết quả.
-- Xem/quản lý các đoạn trong chuyến hiện tại.
-
-### 5.2 Lịch sử (`lich_su.php`)
-
-- Tra cứu dữ liệu đã lưu theo tàu, chuyến, thời gian.
-- Xuất báo cáo Excel (tổng hợp, theo tháng, in tính dầu).
-- Hỗ trợ đối soát và kiểm tra lại thông tin.
-
-### 5.3 Quản lý dầu tồn (`quan_ly_dau_ton.php`)
-
-- Nhập/xem/chỉnh dữ liệu dầu tồn theo tháng, theo tàu.
-- Quản lý điều chuyển dầu giữa các tàu.
-- Theo dõi biến động tồn kho.
-
-### 5.4 Danh sách điểm (`danh_sach_diem.php`)
-
-- Tra cứu tất cả điểm và tuyến đường trong hệ thống.
-- Xem khoảng cách giữa các cặp điểm.
-
-### 5.5 Danh sách tàu (`danh_sach_tau.php`)
-
-- Xem danh sách tàu cùng hệ số nhiên liệu.
-- Phân loại tàu: công ty / thuê ngoài.
-
-### 5.6 Khu vực quản trị (`admin/`)
-
-Toàn bộ khu vực `admin/` yêu cầu tài khoản có role `admin`.
-
-| Trang | Chức năng |
+| Role | Quyền |
 |---|---|
-| `admin/index.php` | Dashboard — thống kê tổng quan (số tàu, điểm, tuyến, hệ số trung bình) |
-| `admin/quan_ly_tau.php` | Thêm/sửa/xóa tàu và hệ số nhiên liệu |
-| `admin/quan_ly_tuyen_duong.php` | Thêm/sửa/xóa tuyến đường và khoảng cách |
-| `admin/quan_ly_loai_hang.php` | Quản lý danh mục loại hàng |
-| `admin/quan_ly_cay_xang.php` | Quản lý danh sách cây xăng |
-| `admin/quan_ly_dau_ton.php` | Quản lý dầu tồn (phía admin) |
-| `admin/bao_cao_dau_ton.php` | Báo cáo dầu tồn theo tháng + xuất Excel |
-| `admin/quan_ly_user.php` | Quản lý người dùng (**chỉ admin**) |
+| User | Tính toán, lịch sử, quản lý dầu tồn trang gốc, danh sách điểm/tàu, đổi mật khẩu |
+| Admin | Tất cả quyền User + toàn bộ khu vực `admin/` |
 
----
-
-## 6. Hệ thống phân quyền
-
-| Vai trò | Quyền truy cập |
+| Guard | Chức năng |
 |---|---|
-| **User** | Trang tính toán, lịch sử, quản lý dầu tồn ở trang gốc, danh sách điểm/tàu, đổi mật khẩu |
-| **Admin** | Tất cả quyền user + toàn bộ khu vực `admin/` (dashboard, CRUD tàu, tuyến, hàng, cây xăng, dầu tồn, báo cáo dầu tồn, người dùng) |
+| `auth/check_auth.php` | Bảo vệ các trang yêu cầu đăng nhập |
+| `auth/check_admin.php` | Bảo vệ toàn bộ khu vực `admin/` |
+| `auth/api_guard.php` | Bảo vệ API/AJAX, trả JSON `401/403` |
+| `auth/auth_helper.php` | Session helper, login/logout, redirect nội bộ an toàn |
 
-- Xác thực qua **PHP Session**, dữ liệu người dùng lưu trong `data/users.csv`.
-- Middleware `auth/check_auth.php` bảo vệ các trang người dùng (yêu cầu đăng nhập).
-- Middleware `auth/check_admin.php` bảo vệ toàn bộ khu vực `admin/` (yêu cầu role = admin).
-- Middleware `auth/api_guard.php` bảo vệ API/AJAX và trả JSON `401/403` thay vì redirect HTML.
-- Khi đăng nhập thành công, session ID được regenerate và redirect sau login chỉ chấp nhận URL nội bộ.
+Đã áp dụng trong `v1.4.1`:
 
----
+- Regenerate session ID sau login thành công.
+- Chặn open redirect sau login bằng `safeLocalRedirect`.
+- Tắt debug display mặc định trong production.
+- Khóa script bảo trì `admin/cleanup_he_so_tau.php` bằng role admin.
+- Toàn bộ `api/` và `ajax/` yêu cầu session hợp lệ.
 
-## 7. Models & dữ liệu
-
-| Model | File dữ liệu | Mô tả |
-|---|---|---|
-| `TinhToanNhienLieu` | — | Công thức tính nhiên liệu: `Q = (Sch + Skh) × Kkh`, kết hợp hệ số tàu và khoảng cách |
-| `LuuKetQua` | `data/ket_qua_tinh_toan.csv` | Lưu/đọc kết quả tính toán, quản lý đoạn chuyến, đánh index |
-| `KhoangCach` | `khoang_duong.csv` | Tra cứu khoảng cách giữa các cặp điểm, chuẩn hóa tên |
-| `HeSoTau` | `bang_he_so_tau_cu_ly_full_v2.csv` | Hệ số nhiên liệu theo tàu và dải cự ly |
-| `TauPhanLoai` | `data/tau_phan_loai.csv` | Phân loại tàu: công ty / thuê ngoài, số đăng ký |
-| `DauTon` | `data/dau_ton.csv` | Dầu tồn theo tháng, tiêu thụ, điều chuyển, điều chỉnh |
-| `CayXang` | `data/cay_xang.csv` | Danh sách cây xăng (nơi cấp dầu) |
-| `LoaiHang` | `data/loai_hang.csv` | Danh mục loại hàng hóa |
-| `User` | `data/users.csv` | Tài khoản người dùng, mật khẩu, phân quyền |
-| `Logger` | `data/logs/` | Ghi log theo cấp độ, xoay file tự động |
+> [!WARNING]
+> Hệ thống đã có guard đăng nhập/admin, nhưng nên bổ sung CSRF token cho các form/POST nếu triển khai trong môi trường nhiều người dùng hoặc có truy cập qua Internet.
 
 ---
 
-## 8. API Endpoints
+<a id="api-du-lieu"></a>
 
-Tất cả endpoint trả JSON theo chuẩn `{ "success": true/false, "data": ... }` hoặc `{ "success": false, "error": "..." }`.
-Các endpoint `api/` và `ajax/` yêu cầu phiên đăng nhập hợp lệ qua `auth/api_guard.php`; riêng endpoint quản trị như `api/add_loai_hang.php` yêu cầu role `admin`.
+## API & dữ liệu
 
-| Phương thức | Endpoint | Chức năng |
+### API status
+
+| Nhóm | Trạng thái |
+|---|---|
+| `api/` | JSON endpoints, yêu cầu session qua `auth/api_guard.php` |
+| `ajax/` | AJAX helpers, yêu cầu session qua `auth/api_guard.php` |
+| Admin-only API | `api/add_loai_hang.php` yêu cầu role `admin` |
+| Tài liệu chi tiết | [`docs/API.md`](docs/API.md) |
+
+<details>
+<summary><strong>Danh sách endpoint chính</strong></summary>
+
+| Method | Endpoint | Chức năng |
 |---|---|---|
 | GET | `/api/get_distance.php` | Lấy khoảng cách giữa 2 điểm |
-| GET | `/api/get_tuyen_duong.php` | Danh sách toàn bộ tuyến đường |
-| GET | `/api/search_diem.php` | Tìm kiếm điểm theo từ khóa |
+| GET | `/api/get_tuyen_duong.php` | Lấy danh sách tuyến đường |
+| GET | `/api/search_diem.php` | Tìm kiếm điểm autocomplete |
 | GET | `/api/get_ma_chuyen.php` | Lấy mã chuyến cao nhất theo tàu |
-| GET | `/api/get_loai_hang.php` | Danh sách loại hàng |
-| POST | `/api/add_loai_hang.php` | Thêm loại hàng mới |
-| POST | `/api/preview_calculation.php` | Xem trước kết quả tính toán |
-| POST | `/api/update_segment.php` | Cập nhật thông tin đoạn chuyến |
-| POST | `/api/update_thang_bao_cao.php` | Cập nhật tháng báo cáo cho đoạn |
-| POST | `/api/insert_trip.php` | Tạo chuyến mới |
-| POST | `/api/delete_trip.php` | Xóa chuyến / đoạn |
-| POST | `/api/move_segment.php` | Di chuyển đoạn sang chuyến khác |
+| GET | `/api/get_loai_hang.php` | Lấy danh sách loại hàng |
+| GET | `/api/preview_calculation.php` | Xem trước tính toán |
+| POST | `/api/add_loai_hang.php` | Thêm loại hàng mới, admin only |
+| POST | `/api/update_segment.php` | Cập nhật đoạn chuyến |
+| POST | `/api/update_thang_bao_cao.php` | Cập nhật tháng báo cáo |
+| POST | `/api/insert_trip.php` | Chèn chuyến mới |
+| POST | `/api/delete_trip.php` | Xóa chuyến |
+| POST | `/api/move_segment.php` | Di chuyển đoạn |
 | POST | `/api/reorder_segments.php` | Sắp xếp lại thứ tự đoạn |
-| POST | `/api/update_tinh_chinh.php` | Cập nhật tinh chỉnh |
+| POST | `/api/update_tinh_chinh.php` | Cập nhật tinh chỉnh dầu tồn |
 | POST | `/api/delete_dau_ton.php` | Xóa bản ghi dầu tồn |
-| POST | `/api/update_cay_xang.php` | Cập nhật thông tin cây xăng |
+| POST | `/api/update_cay_xang.php` | Cập nhật cây xăng |
 | POST | `/api/save_order_overrides.php` | Lưu thứ tự hiển thị tùy chỉnh |
 | POST | `/api/update_transfer.php` | Cập nhật điều chuyển dầu |
 | POST | `/api/delete_transfer.php` | Xóa điều chuyển dầu |
+| GET | `/ajax/get_trips.php` | Lấy danh sách chuyến theo tàu |
+| GET | `/ajax/get_trip_details.php` | Lấy chi tiết một chuyến |
 
-> Tài liệu API chi tiết (tham số, ví dụ): xem [`docs/API.md`](docs/API.md)
+</details>
+
+### Data model
+
+| Model | File dữ liệu | Vai trò |
+|---|---|---|
+| `TinhToanNhienLieu` | N/A | Công thức tính nhiên liệu |
+| `LuuKetQua` | `data/ket_qua_tinh_toan.csv` | Kết quả tính toán, đoạn chuyến |
+| `KhoangCach` | `khoang_duong.csv` | Tuyến đường, khoảng cách |
+| `HeSoTau` | `bang_he_so_tau_cu_ly_full_v2.csv` | Hệ số theo tàu và cự ly |
+| `TauPhanLoai` | `data/tau_phan_loai.csv` | Phân loại tàu, số đăng ký |
+| `DauTon` | `data/dau_ton.csv` | Dầu tồn, tiêu thụ, điều chuyển |
+| `CayXang` | `data/cay_xang.csv` | Danh mục cây xăng |
+| `LoaiHang` | `data/loai_hang.csv` | Danh mục loại hàng |
+| `User` | `data/users.csv` | Tài khoản, mật khẩu hash, role |
+| `Logger` | `data/*.log` | Log vận hành/debug |
+
+> [!TIP]
+> Repo chỉ track `data/*.sample.csv` và `data/*.sample.json`. Dữ liệu vận hành thật được gitignore để tránh rò rỉ thông tin nội bộ.
 
 ---
 
-## 9. Quy trình nghiệp vụ
+## Cấu trúc thư mục
 
+<details open>
+<summary><strong>Thư mục cốt lõi</strong></summary>
+
+```text
+tinh-dau-2/
+|-- index.php
+|-- lich_su.php
+|-- quan_ly_dau_ton.php
+|-- danh_sach_diem.php
+|-- danh_sach_tau.php
+|-- admin/
+|-- ajax/
+|-- api/
+|-- assets/
+|-- auth/
+|-- config/
+|-- data/
+|-- docs/
+|-- includes/
+|-- models/
+|-- src/Report/
+|-- template_header/
+|-- composer.json
+|-- composer.lock
+|-- LICENSE
+`-- README.md
 ```
-┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
-│  Chọn tàu &     │────▶│  Nhập tuyến,     │────▶│  Xử lý phát    │
-│  mã chuyến      │     │  khối lượng,     │     │  sinh (đổi lệnh │
-│                 │     │  ngày tháng      │     │  / cấp thêm)    │
-└─────────────────┘     └──────────────────┘     └────────┬────────┘
-                                                          │
-                        ┌──────────────────┐              │
-                        │  Kiểm tra &      │◀─────────────┘
-                        │  Lưu kết quả     │
-                        └────────┬─────────┘
-                                 │
-                ┌────────────────┴────────────────┐
-                ▼                                 ▼
-   ┌─────────────────┐              ┌─────────────────────┐
-   │  Quản lý dầu    │              │  Xuất báo cáo Excel │
-   │  tồn theo tháng │              │  cuối kỳ            │
-   └─────────────────┘              └─────────────────────┘
+
+</details>
+
+### Thư mục quan trọng
+
+| Thư mục | Nội dung |
+|---|---|
+| `auth/` | Login/logout, middleware, API guard |
+| `admin/` | Khu vực quản trị, role admin |
+| `api/`, `ajax/` | JSON endpoints cho frontend |
+| `models/` | Business logic và thao tác CSV/JSON |
+| `includes/` | Header/footer, helpers, export Excel |
+| `template_header/` | Template header Excel `.xlsx` |
+| `data/` | Runtime data, sample data, logs |
+| `docs/` | Tài liệu bổ sung |
+
+---
+
+## Quy trình nghiệp vụ
+
+```mermaid
+flowchart TD
+    A[Chọn tàu và mã chuyến] --> B[Nhập tuyến, khối lượng, ngày tháng]
+    B --> C{Có phát sinh?}
+    C -->|Đổi lệnh| D[Nhập điểm trung gian]
+    C -->|Cấp thêm dầu| E[Nhập loại cấp thêm và số lít]
+    C -->|Không| F[Tính nhiên liệu]
+    D --> F
+    E --> F
+    F --> G[Kiểm tra kết quả]
+    G --> H[Lưu kết quả]
+    H --> I[Quản lý dầu tồn]
+    H --> J[Xuất báo cáo Excel]
+
+    classDef input fill:#DBEAFE,stroke:#2563EB,color:#1E3A8A;
+    classDef process fill:#ECFDF5,stroke:#059669,color:#064E3B;
+    classDef decision fill:#FEF3C7,stroke:#D97706,color:#78350F;
+    classDef output fill:#F3E8FF,stroke:#7C3AED,color:#4C1D95;
+    class A,B input;
+    class C decision;
+    class D,E,F,G,H,I process;
+    class J output;
 ```
 
-1. **Chọn tàu và mã chuyến** cần làm việc.
-2. **Nhập tuyến và thông số chuyến** (điểm đi/đến, khối lượng, ngày đi/đến/dỡ xong).
-3. Nếu phát sinh, nhập thêm **đổi lệnh** hoặc **cấp thêm dầu**.
-4. Bấm **Tính Toán Nhiên Liệu** để kiểm tra kết quả.
-5. Kiểm tra lại thông tin, bấm **Lưu Kết Quả** để ghi chính thức.
-6. Quản lý **dầu tồn** theo tháng để theo dõi tiêu thụ thực tế.
-7. Cuối kỳ, vào lịch sử hoặc báo cáo để **xuất file Excel tổng hợp**.
+---
+
+## Vận hành & bảo trì
+
+| Việc cần làm | Tần suất gợi ý |
+|---|---|
+| Sao lưu `data/` | Hàng ngày hoặc trước đợt nhập liệu lớn |
+| Kiểm tra `composer audit` | Trước mỗi lần deploy |
+| Kiểm tra PHP lint | Trước mỗi lần commit/deploy |
+| Kiểm tra `DEBUG_MODE` | Luôn `false` trên production |
+| Rà soát quyền admin | Khi tạo/sửa user |
+| Xuất thử báo cáo Excel | Sau thay đổi template/export |
+
+Lệnh kiểm tra nhanh:
+
+```bash
+composer validate --no-check-publish
+composer audit
+php -l index.php
+```
 
 ---
 
-## 10. Lưu ý quan trọng
+<a id="lich-su-thay-doi"></a>
 
-- Dữ liệu chuyến và dầu tồn là dữ liệu nghiệp vụ quan trọng — cần nhập chính xác ngay từ đầu.
-- Khi sửa/xóa/di chuyển đoạn, hệ thống có thể ảnh hưởng đến thứ tự các đoạn liên quan.
-- Luôn kiểm tra **tháng báo cáo** trước khi lưu.
-- Dữ liệu được lưu dưới dạng file CSV/JSON — cần **sao lưu thư mục `data/`** định kỳ.
-- Các file CSV gốc (`khoang_duong.csv`, `bang_he_so_tau_cu_ly_full_v2.csv`) chứa dữ liệu nền tảng — chỉ chỉnh sửa qua giao diện admin.
-- Cấu hình hiện tại tắt debug hiển thị lỗi (`DEBUG_MODE = false`); chỉ bật tạm thời khi cần điều tra lỗi nội bộ.
-- Các API/AJAX đã có guard đăng nhập/admin, nhưng hệ thống vẫn nên bổ sung CSRF token cho các form/POST nếu triển khai trong môi trường có nhiều người dùng hoặc truy cập qua Internet.
-
----
-
-## 11. Lịch sử thay đổi
+## Lịch sử thay đổi
 
 ### v1.4.1 (2026-06-12)
 
-**Bảo mật & vận hành:**
-- Thêm `auth/api_guard.php` để bảo vệ toàn bộ API/AJAX bằng phiên đăng nhập và trả lỗi JSON `401/403`.
-- Chuyển toàn bộ khu vực `admin/` sang yêu cầu role `admin`; menu quản trị chỉ hiển thị cho admin.
-- Sửa open redirect sau đăng nhập và regenerate session ID khi login thành công.
-- Khóa script bảo trì `admin/cleanup_he_so_tau.php` bằng quyền admin.
-- Tắt hiển thị lỗi debug mặc định trong production và bỏ closing PHP tag ở `config/database.php` để tránh output trước header.
+**Bảo mật & vận hành**
 
-**Sửa lỗi & dependency:**
+- Thêm `auth/api_guard.php` để bảo vệ toàn bộ API/AJAX bằng session và trả JSON `401/403`.
+- Chuyển toàn bộ `admin/` sang yêu cầu role `admin`.
+- Sửa open redirect sau login và regenerate session ID khi login thành công.
+- Khóa `admin/cleanup_he_so_tau.php` bằng quyền admin.
+- Tắt hiển thị lỗi debug mặc định trong production.
+
+**Sửa lỗi & dependency**
+
 - Sửa đường dẫn include/fetch của `quan_ly_dau_ton.php` ở thư mục gốc.
-- Cập nhật `phpoffice/phpspreadsheet` trong `composer.lock` lên `1.30.5`; `composer audit` hiện không còn security advisory.
+- Cập nhật `phpoffice/phpspreadsheet` lên `1.30.5`.
 - Thêm license `proprietary` trong `composer.json`.
+
+<details>
+<summary><strong>Các mốc trước đó</strong></summary>
 
 ### v1.4.0 (2026-04-09)
 
-**Tính năng mới:**
-- **Nhiều lệnh Ma nơ trong 1 chuyến** — cho phép thêm/xóa động nhiều lệnh cấp thêm dầu (ma nơ, qua cầu, rô đai + vệ sinh, khác) tại nhiều địa điểm khác nhau trong cùng mã chuyến.
-- **Gợi ý chọn nhanh địa điểm Ma nơ** — khi chuyến hiện tại đã có từ 2 địa điểm Ma nơ trở lên, hiển thị nút chọn nhanh để nhập nhanh hơn.
-- **Validation nâng cao** — kiểm tra tính hợp lệ của tất cả lệnh Ma nơ bổ sung trước khi lưu (địa điểm không rỗng, số lượng > 0).
-
-**Dọn dẹp dự án:**
-- Xóa script demo (`generate_diem_csv_demo.php`) và file output demo (`data/diem_generated.csv`).
-- Untrack dữ liệu runtime JSON (`order_overrides.json`, `transfer_overrides.json`) — thêm file sample thay thế.
-- Xóa file log debug/vận hành và PHPUnit cache.
-- Cập nhật `.gitignore`: bảo vệ `*.sample.json` tương tự `*.sample.csv`.
-- Xóa file CSV trùng lặp/backup (`dau_ton_2.csv`, `ket_qua_tinh_toan_2.csv`).
+- Hỗ trợ nhiều lệnh Ma nơ trong một chuyến.
+- Gợi ý chọn nhanh địa điểm Ma nơ khi chuyến có từ 2 địa điểm trở lên.
+- Validation nâng cao cho lệnh Ma nơ bổ sung.
+- Dọn dẹp project và untrack runtime JSON.
 
 ### v1.3.8 (2026-04)
 
-- Cập nhật README toàn diện với cấu trúc thư mục, API docs, quy trình nghiệp vụ.
-- Fix dropdown tháng báo cáo bị trùng lặp.
+- Cập nhật README, API docs, quy trình nghiệp vụ.
+- Sửa dropdown tháng báo cáo bị trùng lặp.
 
 ### v1.3.x
 
 - Hỗ trợ rô đai + vệ sinh trong cấp thêm dầu.
-- Chuẩn hóa báo cáo cấp thêm và rule dầu ma nơ.
-- Giữ lại địa điểm cấp thêm sau khi tính toán.
+- Chuẩn hóa báo cáo cấp thêm và rule dầu Ma nơ.
 - Quản lý template header Excel theo loại báo cáo.
+
+</details>
 
 ---
 
-## 12. Bản quyền
+## Bản quyền
 
-Phần mềm thuộc sở hữu của **Công ty Cổ phần Logistics VICEM** (Copyright 2026).
+Phần mềm thuộc sở hữu của **Công ty Cổ phần Logistics VICEM**. Mã nguồn và dữ liệu được xem là thông tin mật nội bộ.
 
-- Chỉ sử dụng cho mục đích **nghiệp vụ nội bộ**.
+- Chỉ sử dụng cho nghiệp vụ nội bộ.
 - Không sao chép, phát tán, thương mại hóa khi chưa được phê duyệt.
-- Mã nguồn và dữ liệu được xem là **thông tin mật nội bộ**.
-- Chi tiết: xem file [`LICENSE`](LICENSE).
+- Chi tiết xem [`LICENSE`](LICENSE).
 
 ---
 
 ## Hỗ trợ
 
-Khi có sự cố dữ liệu hoặc cần thay đổi quy trình, liên hệ **quản trị hệ thống** hoặc bộ phận kỹ thuật phụ trách triển khai.
+Khi có sự cố dữ liệu hoặc cần thay đổi quy trình, liên hệ quản trị hệ thống hoặc bộ phận kỹ thuật phụ trách triển khai.
