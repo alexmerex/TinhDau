@@ -29,6 +29,8 @@
   <a href="#api-du-lieu">API & dữ liệu</a>
   &nbsp;&middot;&nbsp;
   <a href="#lich-su-thay-doi">Changelog</a>
+  &nbsp;&middot;&nbsp;
+  <a href="#license">License</a>
 </p>
 
 ---
@@ -412,13 +414,29 @@ php -l index.php
 
 ---
 
-## Bản quyền
+<a id="license"></a>
 
-Phần mềm thuộc sở hữu của **Công ty Cổ phần Logistics VICEM**. Mã nguồn và dữ liệu được xem là thông tin mật nội bộ.
+## License
 
-- Chỉ sử dụng cho nghiệp vụ nội bộ.
-- Không sao chép, phát tán, thương mại hóa khi chưa được phê duyệt.
-- Chi tiết xem [`LICENSE`](LICENSE).
+<p>
+  <img alt="License" src="https://img.shields.io/badge/license-proprietary-7C3AED?style=flat-square">
+  <img alt="Scope" src="https://img.shields.io/badge/scope-internal%20use-0F766E?style=flat-square">
+  <img alt="Distribution" src="https://img.shields.io/badge/distribution-restricted-B91C1C?style=flat-square">
+</p>
+
+TINHDAU là phần mềm nội bộ thuộc sở hữu của **Công ty Cổ phần Logistics VICEM**. Mã nguồn, cấu hình, tài liệu, dữ liệu nghiệp vụ và báo cáo phát sinh được xem là thông tin nội bộ/mật.
+
+| Hạng mục | Nội dung |
+|---|---|
+| Loại license | Proprietary / Internal software |
+| Chủ sở hữu | Công ty Cổ phần Logistics VICEM |
+| Phạm vi sử dụng | Chỉ dùng cho nghiệp vụ nội bộ và các bên được ủy quyền bằng văn bản |
+| Phân phối | Không sao chép, phát tán, công bố, thương mại hóa hoặc cấp phép lại khi chưa được phê duyệt |
+| Dữ liệu | Runtime data, tài khoản, cấu hình và báo cáo phải được bảo vệ theo quy định nội bộ |
+| Điều khoản đầy đủ | [`LICENSE`](LICENSE) |
+
+> [!IMPORTANT]
+> Repo này không được cấp phép như phần mềm mã nguồn mở. Mọi quyền sử dụng ngoài phạm vi nội bộ cần có văn bản chấp thuận riêng của chủ sở hữu.
 
 ---
 
