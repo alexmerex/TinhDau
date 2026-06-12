@@ -17,7 +17,7 @@ if (!defined('TAU_PHAN_LOAI_FILE')) {
 
 // Thông tin hệ thống
 define('SITE_NAME', 'Hệ Thống Tính Toán Nhiên Liệu Tàu');
-define('VERSION', '1.4.0');
+define('VERSION', '1.4.1');
 
 // Cấu hình phân trang
 define('ITEMS_PER_PAGE', 10);
@@ -51,4 +51,3 @@ if (!defined('CU_LY_TRUNG_BINH_MAX_KM')) {
 // Các hàm phan_loai_cu_ly và label_cu_ly đã được chuyển vào includes/helpers.php
 
 // Các hàm format_date_vn và parse_date_vn đã được chuyển vào includes/helpers.php
-

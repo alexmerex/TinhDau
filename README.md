@@ -1,4 +1,4 @@
-# TINHDAU v1.4.0
+# TINHDAU v1.4.1
 
 Hệ thống **tính định mức nhiên liệu**, **quản lý chuyến tàu**, **theo dõi dầu tồn** và **xuất báo cáo** phục vụ công tác vận hành nội bộ — Công ty Cổ phần Logistics VICEM.
 
@@ -39,9 +39,9 @@ TINHDAU giúp đơn vị:
 |---|---|
 | **Ngôn ngữ** | PHP >= 7.4 |
 | **Lưu trữ** | File CSV + JSON (không sử dụng SQL database) |
-| **Thư viện PHP** | [PhpSpreadsheet](https://github.com/PHPOffice/PhpSpreadsheet) ^1.29 (xuất Excel) |
+| **Thư viện PHP** | [PhpSpreadsheet](https://github.com/PHPOffice/PhpSpreadsheet) ^1.29, lock hiện tại 1.30.5 (xuất Excel) |
 | **Frontend** | Bootstrap 5.3, Font Awesome 6, Flatpickr (date picker), Google Fonts Inter |
-| **Xác thực** | PHP Session, dữ liệu user lưu trong CSV |
+| **Xác thực** | PHP Session, guard đăng nhập/admin, API JSON guard |
 | **Web server** | Apache (XAMPP) hoặc tương đương |
 | **Autoload** | Composer PSR-4 (`App\Models\` → `models/`) |
 
@@ -63,6 +63,7 @@ tinh-dau-2/
 │   ├── change_password.php    # Đổi mật khẩu
 │   ├── check_auth.php         # Middleware: yêu cầu đăng nhập
 │   ├── check_admin.php        # Middleware: yêu cầu quyền admin
+│   ├── api_guard.php          # Middleware JSON cho API/AJAX
 │   └── auth_helper.php        # Session helper (isLoggedIn, isAdmin...)
 │
 ├── admin/                     # Khu vực quản trị
@@ -219,6 +220,8 @@ chmod -R 775 data/
 
 ### 5.6 Khu vực quản trị (`admin/`)
 
+Toàn bộ khu vực `admin/` yêu cầu tài khoản có role `admin`.
+
 | Trang | Chức năng |
 |---|---|
 | `admin/index.php` | Dashboard — thống kê tổng quan (số tàu, điểm, tuyến, hệ số trung bình) |
@@ -236,12 +239,14 @@ chmod -R 775 data/
 
 | Vai trò | Quyền truy cập |
 |---|---|
-| **User** | Trang tính toán, lịch sử, quản lý dầu tồn, danh sách điểm/tàu, đổi mật khẩu |
-| **Admin** | Tất cả quyền user + toàn bộ khu vực quản trị (CRUD tàu, tuyến, hàng, cây xăng, dầu tồn, người dùng) |
+| **User** | Trang tính toán, lịch sử, quản lý dầu tồn ở trang gốc, danh sách điểm/tàu, đổi mật khẩu |
+| **Admin** | Tất cả quyền user + toàn bộ khu vực `admin/` (dashboard, CRUD tàu, tuyến, hàng, cây xăng, dầu tồn, báo cáo dầu tồn, người dùng) |
 
 - Xác thực qua **PHP Session**, dữ liệu người dùng lưu trong `data/users.csv`.
-- Middleware `auth/check_auth.php` bảo vệ tất cả trang (yêu cầu đăng nhập).
-- Middleware `auth/check_admin.php` bảo vệ trang quản lý người dùng (yêu cầu role = admin).
+- Middleware `auth/check_auth.php` bảo vệ các trang người dùng (yêu cầu đăng nhập).
+- Middleware `auth/check_admin.php` bảo vệ toàn bộ khu vực `admin/` (yêu cầu role = admin).
+- Middleware `auth/api_guard.php` bảo vệ API/AJAX và trả JSON `401/403` thay vì redirect HTML.
+- Khi đăng nhập thành công, session ID được regenerate và redirect sau login chỉ chấp nhận URL nội bộ.
 
 ---
 
@@ -265,6 +270,7 @@ chmod -R 775 data/
 ## 8. API Endpoints
 
 Tất cả endpoint trả JSON theo chuẩn `{ "success": true/false, "data": ... }` hoặc `{ "success": false, "error": "..." }`.
+Các endpoint `api/` và `ajax/` yêu cầu phiên đăng nhập hợp lệ qua `auth/api_guard.php`; riêng endpoint quản trị như `api/add_loai_hang.php` yêu cầu role `admin`.
 
 | Phương thức | Endpoint | Chức năng |
 |---|---|---|
@@ -331,10 +337,26 @@ Tất cả endpoint trả JSON theo chuẩn `{ "success": true/false, "data": ..
 - Luôn kiểm tra **tháng báo cáo** trước khi lưu.
 - Dữ liệu được lưu dưới dạng file CSV/JSON — cần **sao lưu thư mục `data/`** định kỳ.
 - Các file CSV gốc (`khoang_duong.csv`, `bang_he_so_tau_cu_ly_full_v2.csv`) chứa dữ liệu nền tảng — chỉ chỉnh sửa qua giao diện admin.
+- Cấu hình hiện tại tắt debug hiển thị lỗi (`DEBUG_MODE = false`); chỉ bật tạm thời khi cần điều tra lỗi nội bộ.
+- Các API/AJAX đã có guard đăng nhập/admin, nhưng hệ thống vẫn nên bổ sung CSRF token cho các form/POST nếu triển khai trong môi trường có nhiều người dùng hoặc truy cập qua Internet.
 
 ---
 
 ## 11. Lịch sử thay đổi
+
+### v1.4.1 (2026-06-12)
+
+**Bảo mật & vận hành:**
+- Thêm `auth/api_guard.php` để bảo vệ toàn bộ API/AJAX bằng phiên đăng nhập và trả lỗi JSON `401/403`.
+- Chuyển toàn bộ khu vực `admin/` sang yêu cầu role `admin`; menu quản trị chỉ hiển thị cho admin.
+- Sửa open redirect sau đăng nhập và regenerate session ID khi login thành công.
+- Khóa script bảo trì `admin/cleanup_he_so_tau.php` bằng quyền admin.
+- Tắt hiển thị lỗi debug mặc định trong production và bỏ closing PHP tag ở `config/database.php` để tránh output trước header.
+
+**Sửa lỗi & dependency:**
+- Sửa đường dẫn include/fetch của `quan_ly_dau_ton.php` ở thư mục gốc.
+- Cập nhật `phpoffice/phpspreadsheet` trong `composer.lock` lên `1.30.5`; `composer audit` hiện không còn security advisory.
+- Thêm license `proprietary` trong `composer.json`.
 
 ### v1.4.0 (2026-04-09)
 

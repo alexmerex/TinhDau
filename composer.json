@@ -2,6 +2,7 @@
     "name": "vicem/tinh-dau",
     "description": "Hệ thống tính toán nhiên liệu tàu",
     "type": "project",
+    "license": "proprietary",
     "require": {
         "php": ">=7.4",
         "phpoffice/phpspreadsheet": "^1.29"
