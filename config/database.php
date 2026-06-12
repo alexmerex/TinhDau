@@ -51,6 +51,4 @@ if (!defined('CU_LY_TRUNG_BINH_MAX_KM')) {
 // Các hàm phan_loai_cu_ly và label_cu_ly đã được chuyển vào includes/helpers.php
 
 // Các hàm format_date_vn và parse_date_vn đã được chuyển vào includes/helpers.php
-?>
-
 

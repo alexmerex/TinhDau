@@ -4,7 +4,7 @@
  * Cho phép thêm, sửa, xóa tuyến đường và khoảng cách
  */
 
-require_once __DIR__ . '/../auth/check_auth.php';
+require_once __DIR__ . '/../auth/check_admin.php';
 require_once '../includes/helpers.php';
 require_once '../config/database.php';
 require_once '../models/KhoangCach.php';
@@ -585,5 +585,4 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <?php include '../includes/footer.php'; ?>
-
 

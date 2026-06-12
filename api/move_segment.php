@@ -1,4 +1,7 @@
 <?php
+require_once __DIR__ . '/../auth/api_guard.php';
+requireApiLogin();
+
 /**
  * API để di chuyển một đoạn từ chuyến này sang chuyến khác
  */

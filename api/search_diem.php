@@ -1,4 +1,7 @@
 <?php
+require_once __DIR__ . '/../auth/api_guard.php';
+requireApiLogin();
+
 // API endpoint to search for location names (autocomplete)
 // Hỗ trợ cả format cũ (keyword, diem_dau) và mới (q)
 header('Content-Type: application/json; charset=UTF-8');

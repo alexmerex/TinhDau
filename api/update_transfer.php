@@ -1,4 +1,7 @@
 <?php
+require_once __DIR__ . '/../auth/api_guard.php';
+requireApiLogin();
+
 require_once __DIR__ . '/../includes/helpers.php';
 require_once __DIR__ . '/../models/HeSoTau.php';
 
@@ -148,5 +151,4 @@ try {
     echo json_encode(['success' => false, 'error' => $e->getMessage()]);
 }
 ?>
-
 

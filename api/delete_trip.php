@@ -1,4 +1,7 @@
 <?php
+require_once __DIR__ . '/../auth/api_guard.php';
+requireApiLogin();
+
 /**
  * API: Xóa chuyến và renumber các chuyến phía sau
  *

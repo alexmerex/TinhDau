@@ -4,7 +4,7 @@
  * Cho phép xem và xuất báo cáo nhiên liệu của từng tàu từ đầu năm đến ngày được chọn
  */
 
-require_once __DIR__ . '/../auth/check_auth.php';
+require_once __DIR__ . '/../auth/check_admin.php';
 require_once __DIR__ . '/../includes/helpers.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../models/HeSoTau.php';

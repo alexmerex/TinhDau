@@ -1,4 +1,7 @@
 <?php
+require_once __DIR__ . '/../auth/api_guard.php';
+requireApiLogin();
+
 /**
  * API để lấy mã chuyến cao nhất của một tàu
  */

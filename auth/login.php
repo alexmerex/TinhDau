@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             loginUser($user);
 
             // Chuyển hướng về trang được yêu cầu hoặc trang chủ
-            $redirect = $_GET['redirect'] ?? '../index.php';
+            $redirect = safeLocalRedirect($_GET['redirect'] ?? '../index.php');
             header('Location: ' . $redirect);
             exit;
         } else {
@@ -387,4 +387,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </script>
 </body>
 </html>
-

@@ -422,6 +422,7 @@ $isUserAdmin = isAdmin();
                 <a class="list-group-item list-group-item-action" href="<?php echo $prefix; ?>lich_su.php"><i class="fas fa-database me-2"></i>Lịch sử đã lưu</a>
                 <a class="list-group-item list-group-item-action" href="<?php echo $prefix; ?>danh_sach_diem.php"><i class="fas fa-map-marker-alt me-2"></i>Danh sách điểm</a>
 
+                <?php if ($isUserAdmin): ?>
                 <!-- Menu Quản lý - Hiển thị cho tất cả user -->
                 <div class="list-group-item fw-bold text-muted"><i class="fas fa-cogs me-2"></i>Quản lý</div>
                 <a class="list-group-item list-group-item-action ps-4" href="<?php echo $prefix; ?>admin/quan_ly_tau.php"><i class="fas fa-ship me-2"></i>Quản lý tàu</a>
@@ -432,7 +433,6 @@ $isUserAdmin = isAdmin();
                 <a class="list-group-item list-group-item-action ps-4" href="<?php echo $prefix; ?>admin/quan_ly_loai_hang.php"><i class="fas fa-tags me-2"></i>Quản lý loại hàng</a>
 
                 <!-- Quản lý người dùng - CHỈ admin -->
-                <?php if ($isUserAdmin): ?>
                 <a class="list-group-item list-group-item-action ps-4" href="<?php echo $prefix; ?>admin/quan_ly_user.php"><i class="fas fa-users me-2"></i>Quản lý người dùng</a>
                 <?php endif; ?>
 
@@ -491,6 +491,7 @@ $isUserAdmin = isAdmin();
                             <span class="item-text">Danh sách điểm</span>
                         </a>
 
+                        <?php if ($isUserAdmin): ?>
                         <!-- Menu Quản lý - Hiển thị cho tất cả user đã đăng nhập -->
                         <div class="list-group-item menu-section">
                             <i class="fas fa-cogs me-2"></i><span class="item-text">Quản lý</span>
@@ -521,7 +522,6 @@ $isUserAdmin = isAdmin();
                         </a>
 
                         <!-- Quản lý người dùng - CHỈ dành cho Admin -->
-                        <?php if ($isUserAdmin): ?>
                         <?php
                             $activeQLUser = ($page === 'quan_ly_user.php');
                         ?>

@@ -1,4 +1,7 @@
 <?php
+require_once __DIR__ . '/../auth/api_guard.php';
+requireApiLogin();
+
 /**
  * API để cập nhật thông tin một đoạn trong mã chuyến
  */

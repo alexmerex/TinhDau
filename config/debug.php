@@ -13,7 +13,7 @@
 // ============================================
 // true  = Bật debug (development)
 // false = Tắt debug (production)
-define('DEBUG_MODE', true);
+define('DEBUG_MODE', false);
 
 // ============================================
 // LOG LEVEL - MỨC ĐỘ LOG
@@ -22,7 +22,7 @@ define('DEBUG_MODE', true);
 // 'INFO'    = Ghi thông tin quan trọng
 // 'WARNING' = Chỉ ghi cảnh báo
 // 'ERROR'   = Chỉ ghi lỗi
-define('LOG_LEVEL', 'DEBUG');
+define('LOG_LEVEL', 'ERROR');
 
 // ============================================
 // LOG FILE - FILE GHI LOG
@@ -43,7 +43,7 @@ define('LOG_TIMESTAMP', true);
 define('LOG_SOURCE', true);
 
 // Có ghi vào console (browser) không (chỉ khi DEBUG_MODE = true)
-define('LOG_TO_CONSOLE', true);
+define('LOG_TO_CONSOLE', false);
 
 // Có ghi vào file không
 define('LOG_TO_FILE', true);

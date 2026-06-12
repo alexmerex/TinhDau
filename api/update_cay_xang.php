@@ -1,4 +1,7 @@
 <?php
+require_once __DIR__ . '/../auth/api_guard.php';
+requireApiLogin();
+
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../models/DauTon.php';
 

@@ -1,4 +1,7 @@
 <?php
+require_once __DIR__ . '/../auth/api_guard.php';
+requireApiLogin();
+
 // Bắt đầu output buffering để tránh output không mong muốn
 ob_start();
 

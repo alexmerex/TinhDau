@@ -1,4 +1,7 @@
 <?php
+require_once __DIR__ . '/../auth/api_guard.php';
+requireApiLogin();
+
 /**
  * AJAX endpoint để lấy chi tiết của một chuyến cụ thể
  */

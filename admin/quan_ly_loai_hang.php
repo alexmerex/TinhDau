@@ -2,7 +2,7 @@
 /**
  * Quản lý Loại hàng (CRUD) dựa trên data/loai_hang.csv
  */
-require_once __DIR__ . '/../auth/check_auth.php';
+require_once __DIR__ . '/../auth/check_admin.php';
 require_once '../includes/helpers.php';
 require_once '../config/database.php';
 require_once '../models/LoaiHang.php';

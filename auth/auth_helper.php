@@ -43,6 +43,10 @@ function getCurrentUser() {
  * Đăng nhập user
  */
 function loginUser($user) {
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        session_regenerate_id(true);
+    }
+
     $_SESSION['user_id'] = $user['id'];
     $_SESSION['username'] = $user['username'];
     $_SESSION['full_name'] = $user['full_name'] ?? '';
@@ -115,6 +119,25 @@ function redirectToHome() {
     exit;
 }
 
+function safeLocalRedirect($redirect, $default = '../index.php') {
+    $redirect = trim((string)$redirect);
+
+    if ($redirect === '' || preg_match('/[\r\n]/', $redirect)) {
+        return $default;
+    }
+
+    if (strpos($redirect, '//') === 0) {
+        return $default;
+    }
+
+    $parts = parse_url($redirect);
+    if ($parts === false || isset($parts['scheme']) || isset($parts['host'])) {
+        return $default;
+    }
+
+    return $redirect;
+}
+
 /**
  * Kiểm tra quyền truy cập
  */
@@ -134,4 +157,3 @@ function requireAdmin() {
         die('Bạn không có quyền truy cập trang này');
     }
 }
-

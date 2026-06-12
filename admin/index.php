@@ -3,7 +3,7 @@
  * Trang Dashboard Admin - Tổng quan hệ thống
  */
 
-require_once __DIR__ . '/../auth/check_auth.php';
+require_once __DIR__ . '/../auth/check_admin.php';
 require_once '../includes/helpers.php';
 require_once '../config/database.php';
 require_once '../models/HeSoTau.php';

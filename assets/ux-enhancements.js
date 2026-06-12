@@ -11,6 +11,11 @@ function validateDauTonForm(form) {
     return true;
 }
 
+function td2ApiUrl(path) {
+    const baseUrl = window.TD2_BASE_URL || '';
+    return baseUrl + 'api/' + String(path || '').replace(/^\/+/, '');
+}
+
 function validateTransferForm(form) {
     const src = (form.tau_nguon && form.tau_nguon.value || '').trim();
     const dst = (form.tau_dich && form.tau_dich.value || '').trim();
@@ -137,7 +142,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             if (confirm('Bạn có chắc chắn muốn xóa lệnh chuyển dầu này không? Hành động này sẽ xóa cả hai bản ghi (xuất và nhập).')) {
-                fetch('../api/delete_transfer.php', {
+                fetch(td2ApiUrl('delete_transfer.php'), {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     body: 'transfer_pair_id=' + encodeURIComponent(pairId)
@@ -166,7 +171,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             if (confirm('Bạn có chắc chắn muốn xóa lệnh cấp dầu này không?')) {
-                fetch('../api/delete_dau_ton.php', {
+                fetch(td2ApiUrl('delete_dau_ton.php'), {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     body: 'id=' + encodeURIComponent(entryId)
@@ -250,7 +255,7 @@ document.addEventListener('DOMContentLoaded', function() {
             saveButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
             saveButton.disabled = true;
 
-            fetch('../api/update_cay_xang.php', {
+            fetch(td2ApiUrl('update_cay_xang.php'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: `id=${encodeURIComponent(entryId)}&cay_xang=${encodeURIComponent(newCayXang)}`
@@ -355,7 +360,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 reason: reason
             });
 
-            fetch('../api/update_transfer.php', {
+            fetch(td2ApiUrl('update_transfer.php'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: body.toString()

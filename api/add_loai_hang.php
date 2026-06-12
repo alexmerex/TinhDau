@@ -1,4 +1,7 @@
 <?php
+require_once __DIR__ . '/../auth/api_guard.php';
+requireApiAdmin();
+
 require_once __DIR__ . '/../models/LoaiHang.php';
 require_once __DIR__ . '/../includes/helpers.php';
 header('Content-Type: application/json; charset=utf-8');

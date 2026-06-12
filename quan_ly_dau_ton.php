@@ -1,10 +1,10 @@
 <?php
-require_once __DIR__ . '/../auth/check_auth.php';
-require_once __DIR__ . '/../includes/helpers.php';
-require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../models/HeSoTau.php';
-require_once __DIR__ . '/../models/DauTon.php';
-require_once __DIR__ . '/../models/CayXang.php';
+require_once __DIR__ . '/auth/check_auth.php';
+require_once __DIR__ . '/includes/helpers.php';
+require_once __DIR__ . '/config/database.php';
+require_once __DIR__ . '/models/HeSoTau.php';
+require_once __DIR__ . '/models/DauTon.php';
+require_once __DIR__ . '/models/CayXang.php';
 
 $heSoTau = new HeSoTau();
 $dauTon = new DauTon();
@@ -62,7 +62,7 @@ $cayXang = trim($_POST['cay_xang'] ?? '');
 $tauChon = $_GET['tau'] ?? ($_POST['ten_tau'] ?? '');
 if ($tauChon && !$heSoTau->isTauExists($tauChon)) { $tauChon = ''; }
 
-include __DIR__ . '/../includes/header.php';
+include __DIR__ . '/includes/header.php';
 ?>
 
 <div class="row mb-4">
@@ -572,7 +572,7 @@ include __DIR__ . '/../includes/header.php';
 
 
 
-<?php include __DIR__ . '/../includes/footer.php'; ?>
+<?php include __DIR__ . '/includes/footer.php'; ?>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -633,7 +633,7 @@ document.addEventListener('DOMContentLoaded', function() {
             btnSaveTinhChinh.disabled = true;
             btnSaveTinhChinh.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Đang lưu...';
 
-            fetch('../api/update_tinh_chinh.php', {
+            fetch('api/update_tinh_chinh.php', {
                 method: 'POST',
                 body: formData
             })
@@ -681,7 +681,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 formData.append('id', id);
                 console.log('Sending delete request for ID:', id);
 
-                fetch('../api/delete_dau_ton.php', {
+                fetch('api/delete_dau_ton.php', {
                     method: 'POST',
                     body: formData
                 })

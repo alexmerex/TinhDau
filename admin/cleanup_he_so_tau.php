@@ -2,6 +2,7 @@
 // One-time maintenance: physically remove ships not in company list from coefficients CSV
 // Usage: open this file in browser once: admin/cleanup_he_so_tau.php
 
+require_once __DIR__ . '/../auth/check_admin.php';
 require_once __DIR__ . '/../includes/helpers.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../models/TauPhanLoai.php';

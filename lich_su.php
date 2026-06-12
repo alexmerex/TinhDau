@@ -2,12 +2,12 @@
 if (function_exists('ob_start')) { ob_start(); }
 // DEBUG: bật hiển thị lỗi để xác định nguyên nhân HTTP 500 khi xuất
 if (!headers_sent()) {
-    @ini_set('display_errors', '1');
-    @ini_set('display_startup_errors', '1');
+    @ini_set('display_errors', '0');
+    @ini_set('display_startup_errors', '0');
 }
-@error_reporting(E_ALL);
+@error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT);
 // In case of fatal errors before output, dump them instead of blank 500
-if (!defined('TD_FATAL_WATCH')) {
+if (defined('DEBUG_MODE') && DEBUG_MODE && !defined('TD_FATAL_WATCH')) {
     define('TD_FATAL_WATCH', 1);
     register_shutdown_function(function(){
         $e = error_get_last();
@@ -4899,5 +4899,4 @@ document.addEventListener('DOMContentLoaded', function(){
 </script>
 
 <?php include 'includes/footer.php'; ?>
-
 

@@ -22,6 +22,9 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vn.js"></script>
 <?php $prefixFooter = (strpos($_SERVER['SCRIPT_NAME'], '/admin/') !== false) ? '../' : ''; ?>
+    <script>
+        window.TD2_BASE_URL = <?php echo json_encode($prefixFooter); ?>;
+    </script>
     <script src="<?php echo $prefixFooter; ?>assets/ux-enhancements.js"></script>
 
     <!-- Custom JavaScript -->

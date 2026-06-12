@@ -1,4 +1,7 @@
 <?php
+require_once __DIR__ . '/../auth/api_guard.php';
+requireApiLogin();
+
 /**
  * API: Sắp xếp lại thứ tự các đoạn trong một chuyến
  * 
@@ -143,4 +146,3 @@ try {
         'error' => $e->getMessage()
     ], JSON_UNESCAPED_UNICODE);
 }
-

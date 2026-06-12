@@ -1,4 +1,7 @@
 <?php
+require_once __DIR__ . '/../auth/api_guard.php';
+requireApiLogin();
+
 /**
  * API endpoint để preview tính toán nhiên liệu khi sửa điểm (không lưu vào database)
  */
